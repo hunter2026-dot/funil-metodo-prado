@@ -280,15 +280,7 @@ html, body {
 .confirm-date  { font-size: 16px; font-weight: 600; opacity: .9; }
 .confirm-data  { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 16px; font-size: 14px; color: var(--text-2); line-height: 2; }
 .confirm-data strong { color: var(--text-1); font-weight: 700; }
-.gcal-btn {
-  width: 100%; padding: 15px;
-  background: white; color: var(--green-dark);
-  border: 2px solid var(--green); border-radius: 8px;
-  font-family: var(--font); font-size: 14px; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-  text-decoration: none;
-}
-.gcal-btn:hover { background: var(--green-light); }
+
 .events-box { padding: 12px 14px; background: #EEEDFE; border: 2px solid #AFA9EC; border-radius: 10px; }
 .events-lbl { font-size: 11px; color: #534AB7; text-transform: uppercase; letter-spacing: .07em; font-weight: 700; margin-bottom: 8px; }
 .events-tags { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -337,27 +329,44 @@ html, body {
     </div>
   </div>
 
-  <!-- S1: Contato -->
+  <!-- S1: Nome -->
   <div class="screen" id="s1">
-    <div class="q-title" id="contact-title"></div>
+    <div class="q-title">Qual é o seu nome? <span class="req">*</span></div>
     <div class="field-group">
-      <div class="field-label">Nome completo <span class="req">*</span></div>
-      <input class="field-inp" id="inp-nome" type="text" placeholder="Seu nome" oninput="checkContact()">
+      <input class="field-inp" id="inp-nome" type="text" placeholder="Seu nome completo" oninput="checkNome()">
     </div>
+    <div class="btn-row">
+      <button class="btn-primary" id="btn-nome" onclick="goTo('s1b',1.3)" disabled>Continuar →</button>
+      <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
+    </div>
+  </div>
+
+  <!-- S1b: WhatsApp -->
+  <div class="screen" id="s1b">
+    <div class="q-title">Qual é o seu WhatsApp? <span class="req">*</span></div>
     <div class="field-group">
-      <div class="field-label">WhatsApp com DDD <span class="req">*</span></div>
       <div class="phone-row">
         <span class="phone-prefix">BR +55</span>
         <input class="field-inp" id="inp-wpp" type="tel" placeholder="(51) 99999-9999" style="flex:1" oninput="maskWpp(this)" maxlength="15">
       </div>
       <span class="wpp-error" id="wpp-error">Número inválido — DDD + 9 dígitos</span>
     </div>
+    <div class="btn-row">
+      <button class="btn-primary" id="btn-wpp" onclick="goTo('s1c',1.6)" disabled>Continuar →</button>
+      <button class="btn-back" onclick="goTo('s1',1)">← Voltar</button>
+      <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
+    </div>
+  </div>
+
+  <!-- S1c: Email -->
+  <div class="screen" id="s1c">
+    <div class="q-title">Qual é o seu e-mail?</div>
     <div class="field-group">
-      <div class="field-label">E-mail</div>
       <input class="field-inp" id="inp-email" type="email" placeholder="seu@email.com">
     </div>
     <div class="btn-row">
-      <button class="btn-primary" id="btn-contact" onclick="goToQ(0)" disabled>Continuar →</button>
+      <button class="btn-primary" onclick="goToQ(0)">Continuar →</button>
+      <button class="btn-back" onclick="goTo('s1b',1.3)">← Voltar</button>
       <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
     </div>
   </div>
@@ -412,9 +421,7 @@ html, body {
       <div class="confirm-date" id="confirm-date"></div>
     </div>
     <div class="confirm-data" id="confirm-data"></div>
-    <a class="gcal-btn" id="gcal-link" href="#" target="_blank">
-      📅 Adicionar ao Google Agenda
-    </a>
+
     <div id="conf-events" style="display:none"></div>
     <div style="font-size:11px;color:#aaa;text-align:center;line-height:1.6;padding-top:8px">
       Ao confirmar, você concorda com nossa 
@@ -467,7 +474,6 @@ CONFIG.bullets.forEach(function(b) {
   document.getElementById('landing-bullets').innerHTML +=
     '<div class="bullet"><span class="bullet-icon" style="color:' + b.color + '">' + b.icon + '</span><span>' + b.text + '</span></div>';
 });
-document.getElementById('contact-title').innerHTML = CONFIG.contactTitle;
 
 // ——— WhatsApp mask ———
 function maskWpp(el) {
@@ -479,12 +485,12 @@ function maskWpp(el) {
   var digits = v.replace(/\D/g, ''), ok = digits.length === 11;
   el.classList.toggle('error', v.length > 0 && !ok);
   document.getElementById('wpp-error').style.display = (v.length > 0 && !ok) ? 'block' : 'none';
-  checkContact();
+  var bw = document.getElementById('btn-wpp');
+  if (bw) bw.disabled = !ok;
 }
-function checkContact() {
-  var nome   = document.getElementById('inp-nome').value.trim();
-  var digits = document.getElementById('inp-wpp').value.replace(/\D/g, '');
-  document.getElementById('btn-contact').disabled = !(nome && digits.length === 11);
+function checkNome() {
+  var nome = document.getElementById('inp-nome').value.trim();
+  document.getElementById('btn-nome').disabled = !nome;
 }
 
 // ——— Build question screens ———
@@ -580,6 +586,9 @@ function pickOpt(qi, oi, isMulti) {
     if (STATE.events.indexOf(o.event) === -1) STATE.events.push(o.event);
     firePixel(o.event);
     document.getElementById('btn-q' + qi).disabled = false;
+    if (!o.disqualify) {
+      setTimeout(function() { advanceQ(qi); }, 300);
+    }
     if (o.disqualify) {
       STATE.dqFromQ = qi;
       setTimeout(function() {
