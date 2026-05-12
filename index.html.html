@@ -12,7 +12,7 @@ const CONFIG = {
   pixelId: "SEU_PIXEL_ID_AQUI",
   meetingName:  "Diagnóstico Estratégico",
   meetingDuration: "30 minutos",
-  googleCalEmail: "SEU_EMAIL@seudominio.com.br",
+  googleCalEmail: "vinicius@huntergrowth.com.br",
   headline:    "Doutora, <strong>multiplique o faturamento da sua clínica</strong> vendendo alto valor para pacientes alto padrão, sem depender de agência de tráfego.",
   bullets: [
     { icon: "✗", color: "#D93025", text: "Chega de lotar WhatsApp com leads que não respondem" },
@@ -415,9 +415,11 @@ html, body {
     <a class="gcal-btn" id="gcal-link" href="#" target="_blank">
       📅 Adicionar ao Google Agenda
     </a>
-    <div class="events-box">
-      <div class="events-lbl">Pixels disparados</div>
-      <div class="events-tags" id="conf-events"></div>
+    <div id="conf-events" style="display:none"></div>
+    <div style="font-size:11px;color:#aaa;text-align:center;line-height:1.6;padding-top:8px">
+      Ao confirmar, você concorda com nossa 
+      <a href="#" style="color:#aaa;text-decoration:underline">Política de Privacidade</a>. 
+      Seus dados são usados exclusivamente para contato e agendamento.
     </div>
   </div>
 
@@ -731,7 +733,7 @@ function buildPayload(status) {
     email:           document.getElementById('inp-email').value,
     status:          status,
     eventos:         STATE.events.join(', '),
-    agendado_em:     STATE.selDay ? STATE.selDay + '/' + (STATE.calM + 1) + '/' + STATE.calY : null,
+    agendado_em:     STATE.selDay ? STATE.calY + '-' + (STATE.calM + 1 < 10 ? '0' : '') + (STATE.calM + 1) + '-' + (STATE.selDay < 10 ? '0' : '') + STATE.selDay : null,
     horario_reuniao: STATE.selTime || null
   };
   Object.keys(STATE.answers).forEach(function(k) { base[k] = STATE.answers[k].text; });
