@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Método Prado — Diagnóstico Gratuito</title>
+
+<!-- ============================================================
+     CONFIGURAÇÃO — EDITE APENAS ESTE BLOCO
+     Tudo que você precisa mudar está aqui.
+     Não é necessário tocar em mais nada no arquivo.
+============================================================ -->
+<script>
+const CONFIG = {
+
+  // — Identidade —
+  brandName:    "Método Prado",
+  brandSub:     "Consultoria Comercial",
+  primaryColor: "#1a7a3a",   // cor principal (botões, barra, seleção)
+
+  // — Meta Pixel —
+  pixelId: "SEU_PIXEL_ID_AQUI",   // cole aqui o ID do seu pixel
+
+  // — Calendly —
+  calendlyUrl:     "https://calendly.com/seu-usuario/diagnostico",
+  meetingName:     "Diagnóstico Estratégico",
+  meetingDuration: "30 minutos",
+
+  // — Landing page —
+  headline:    "Dono de academia ou estúdio, matricule <strong>30% mais alunos</strong> nos próximos 90 dias — com processo, não com sorte.",
+  bullets: [
+    { icon: "✗", color: "#e53e3e", text: "Chega de depender só de indicação" },
+    { icon: "↑", color: "#1a7a3a", text: "Processo de vendas que roda sem você" },
+    { icon: "✓", color: "#1a7a3a", text: "+80 estúdios e academias aplicaram o método" },
+    { icon: "✓", color: "#1a7a3a", text: "Resultado em 90 dias ou devolvemos o investimento" }
+  ],
+  disclaimer:  "Exclusivo para donos de academia, estúdio ou crossfit dispostos a investir no mínimo R$1.500/mês em anúncios e implementar um processo comercial.",
+  ctaLabel:    "QUERO MATRICULAR MAIS ALUNOS",
+
+  // — Tela de contato —
+  contactTitle: "Vamos começar. Qual é o seu contato?",
+
+  // — Perguntas de qualificação —
+  // disqualify: true  →  desqualifica o lead se essa opção for escolhida
+  // disqualify: false →  deixa o lead avançar
+  // dqMsg: mensagem exibida na tela de desqualificação
+  questions: [
+    {
+      id: "q1",
+      name: "Tamanho da base",
+      title: "Quantos alunos ativos seu negócio tem hoje?",
+      dqMsg: "O Método Prado funciona melhor a partir de 30 alunos ativos, quando já existe fluxo para converter. Quando crescer, me chama.",
+      options: [
+        { text: "Menos de 30 alunos",    event: "LeadFrio",    disqualify: true  },
+        { text: "30 a 50 alunos",        event: "LeadMorno",   disqualify: false },
+        { text: "50 a 200 alunos",       event: "LeadICP",     disqualify: false },
+        { text: "Mais de 200 alunos",    event: "LeadGrande",  disqualify: false }
+      ]
+    },
+    {
+      id: "q2",
+      name: "Faturamento",
+      title: "Hoje, quanto sua academia fatura por mês?",
+      dqMsg: "Para o método gerar ROI, precisamos de uma base que suporte o investimento mínimo em anúncios. Continue crescendo e volte quando estiver pronto.",
+      options: [
+        { text: "Menos de R$15.000/mês",           event: "LeadPequeno", disqualify: true  },
+        { text: "Entre R$15.000 e R$40.000/mês",   event: "LeadMedio",   disqualify: false },
+        { text: "Entre R$40.000 e R$100.000/mês",  event: "LeadBom",     disqualify: false },
+        { text: "Acima de R$100.000/mês",           event: "LeadGrande",  disqualify: false }
+      ]
+    },
+    {
+      id: "q3",
+      name: "Canal de captação",
+      title: "Como você capta novos alunos hoje?",
+      dqMsg: "Para o método funcionar, precisamos de algum fluxo de leads chegando. Deixa seu contato e te mando material para dar o primeiro passo.",
+      options: [
+        { text: "Só indicação, sem processo ativo",         event: "LeadSemEstrutura", disqualify: true  },
+        { text: "Redes sociais e anúncios",                 event: "LeadDigital",      disqualify: false },
+        { text: "Mix de ativo e indicação",                 event: "LeadMisto",        disqualify: false },
+        { text: "Prospecção ativa ou equipe comercial",     event: "LeadAvancado",     disqualify: false }
+      ]
+    },
+    {
+      id: "q4",
+      name: "Comprometimento",
+      title: "Caso seu formulário seja aprovado, é <strong>obrigatória</strong> a presença de todos os tomadores de decisão na reunião. Tem mais alguém que te ajuda nas decisões do negócio?",
+      dqMsg: "",
+      options: [
+        { text: "Sim. Estaremos juntos na reunião.",                                          event: "LeadComSocio", disqualify: false },
+        { text: "Não. Só eu decido e me comprometo a participar no horário combinado.",       event: "LeadSoloDec",  disqualify: false }
+      ]
+    }
+  ],
+
+  // — Supabase (opcional — deixe em branco para não usar) —
+  supabaseUrl:  "",   // ex: https://xyzxyz.supabase.co
+  supabaseKey:  "",   // sua anon key pública
+
+  // — Redirect após confirmação (opcional) —
+  successRedirect: ""   // ex: https://metodoprado.com.br/obrigado
+};
+</script>
+<!-- ============================================================
+     FIM DA CONFIGURAÇÃO
+============================================================ -->
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap');
+
+  :root {
+    --primary: #1a7a3a;
+    --primary-dark: #155f2d;
+    --primary-light: #f0faf3;
+    --primary-border: #9ae6b4;
+    --danger: #e53e3e;
+    --danger-light: #fff5f5;
+    --danger-border: #feb2b2;
+    --text-1: #0f0f0f;
+    --text-2: #555;
+    --text-3: #999;
+    --border: #e2e8f0;
+    --surface: #fafafa;
+    --white: #ffffff;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'DM Serif Display', serif;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: var(--font-body);
+    background: #f5f6f4;
+    color: var(--text-1);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 16px 60px;
+  }
+
+  /* — Top bar — */
+  .top-bar {
+    width: 100%;
+    max-width: 520px;
+    padding: 20px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .brand-name {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--text-1);
+    letter-spacing: -.3px;
+  }
+
+  .brand-sep {
+    width: 1px;
+    height: 16px;
+    background: var(--border);
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+  }
+
+  /* — Progress — */
+  .prog-wrap { width: 100%; margin-bottom: 4px; }
+  .prog-row { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+  .prog-pct { font-size: 11px; color: var(--text-3); }
+  .prog-bar { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 2px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+  /* — Card — */
+  .card {
+    width: 100%;
+    max-width: 520px;
+    background: var(--white);
+    border: .5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    margin-top: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* — Screens — */
+  .screen { display: none; flex-direction: column; gap: 20px; }
+  .screen.active { display: flex; animation: fadeUp .22s ease; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* — Question — */
+  .q-title { font-size: 20px; font-weight: 400; line-height: 1.45; color: var(--text-1); }
+  .q-title strong { font-weight: 600; }
+  .req { color: var(--danger); }
+
+  /* — Bullets (landing) — */
+  .bullets { display: flex; flex-direction: column; gap: 10px; }
+  .bullet { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-2); line-height: 1.5; }
+  .bullet-icon { font-size: 13px; font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+
+  /* — Disclaimer — */
+  .disclaimer {
+    font-size: 13px;
+    color: var(--text-3);
+    line-height: 1.6;
+    border-left: 2px solid var(--border);
+    padding-left: 12px;
+    font-style: italic;
+  }
+
+  /* — CTA button — */
+  .btn-primary {
+    width: 100%;
+    padding: 15px 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-primary:active { transform: scale(.99); }
+  .btn-primary:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    width: 100%;
+    padding: 12px 20px;
+    background: none;
+    color: var(--text-3);
+    border: .5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-ghost:hover { background: var(--surface); color: var(--text-2); }
+
+  .enter-hint { font-size: 11px; color: var(--text-3); }
+  .enter-hint kbd { background: var(--surface); border: .5px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 11px; font-family: monospace; }
+
+  /* — Input fields — */
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-label { font-size: 11px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: .06em; }
+  .field-inp {
+    width: 100%;
+    padding: 11px 0;
+    border: none;
+    border-bottom: 1.5px solid var(--border);
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--text-1);
+    background: transparent;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .field-inp:focus { border-bottom-color: var(--primary); }
+  .field-inp::placeholder { color: var(--text-3); }
+  .phone-row { display: flex; align-items: flex-end; gap: 8px; }
+  .phone-prefix {
+    font-size: 13px;
+    color: var(--text-2);
+    border-bottom: 1.5px solid var(--border);
+    padding: 11px 8px 11px 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* — Options — */
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border: .5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text-1);
+    text-align: left;
+    transition: all .12s;
+    width: 100%;
+  }
+  .opt-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+  .opt-btn.selected { border-color: var(--primary); background: var(--primary-light); }
+  .opt-btn.dq-option { border-color: var(--border); }
+  .opt-btn.dq-option:hover { border-color: var(--danger); background: var(--danger-light); }
+  .opt-key {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: .5px solid var(--border);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all .12s;
+  }
+  .opt-btn.selected .opt-key { background: var(--primary); border-color: var(--primary); color: white; }
+  .opt-btn.dq-option.selected .opt-key { background: var(--danger); border-color: var(--danger); color: white; }
+
+  /* — Calendar — */
+  .cal-container { border: .5px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .cal-header { padding: 14px 16px; border-bottom: .5px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: space-between; }
+  .cal-meeting-name { font-size: 13px; font-weight: 500; color: var(--text-1); }
+  .cal-meeting-dur { font-size: 11px; color: var(--text-3); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+  .cal-body { display: grid; grid-template-columns: 1fr 1fr; }
+  .cal-left { padding: 14px; }
+  .cal-right { border-left: .5px solid var(--border); padding: 14px; background: var(--surface); }
+  .cal-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .cal-month-lbl { font-size: 13px; font-weight: 500; color: var(--text-1); }
+  .cal-nav-btns { display: flex; gap: 4px; }
+  .cal-nav-btn { width: 24px; height: 24px; border: .5px solid var(--border); border-radius: 6px; background: var(--white); cursor: pointer; font-size: 12px; color: var(--text-2); display: flex; align-items: center; justify-content: center; }
+  .cal-nav-btn:hover { background: var(--surface); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cal-day-lbl { text-align: center; font-size: 9px; color: var(--text-3); font-weight: 500; padding: 3px 0; }
+  .cal-day {
+    text-align: center;
+    font-size: 11px;
+    padding: 5px 2px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-1);
+    transition: all .1s;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cal-day:hover:not(.past):not(.empty):not(.no-slots) { background: var(--primary-light); color: var(--primary); }
+  .cal-day.selected-day { background: var(--primary); color: white; font-weight: 600; }
+  .cal-day.past, .cal-day.no-slots { color: #ccc; cursor: default; }
+  .cal-day.today { font-weight: 700; }
+  .cal-day.empty { cursor: default; }
+
+  .times-date-lbl { font-size: 11px; color: var(--text-3); margin-bottom: 8px; }
+  .times-list { display: flex; flex-direction: column; gap: 5px; max-height: 260px; overflow-y: auto; }
+  .time-slot {
+    padding: 8px 10px;
+    border: .5px solid var(--border);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-1);
+    background: var(--white);
+    cursor: pointer;
+    text-align: center;
+    transition: all .1s;
+  }
+  .time-slot:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+  .time-slot.selected-time { background: var(--primary); border-color: var(--primary); color: white; font-weight: 500; }
+  .no-times-msg { font-size: 11px; color: var(--text-3); text-align: center; padding: 20px 8px; line-height: 1.5; }
+
+  /* — Confirmation — */
+  .confirm-slot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--primary-light);
+    border: .5px solid var(--primary-border);
+    border-radius: var(--radius-sm);
+  }
+  .confirm-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+    color: white;
+  }
+  .confirm-main { font-size: 14px; font-weight: 500; color: #0d4a22; }
+  .confirm-sub { font-size: 12px; color: #276749; margin-top: 2px; }
+  .confirm-data-box {
+    background: var(--surface);
+    border: .5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 2;
+  }
+  .confirm-data-box strong { color: var(--text-1); font-weight: 500; }
+  .events-box { padding: 12px 14px; background: #EEEDFE; border: .5px solid #AFA9EC; border-radius: var(--radius-sm); }
+  .events-lbl { font-size: 10px; color: #534AB7; text-transform: uppercase; letter-spacing: .06em; font-weight: 500; margin-bottom: 6px; }
+  .events-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .ev-tag { background: white; color: #3C3489; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 10px; border: .5px solid #AFA9EC; font-family: monospace; }
+
+  /* — Disqualified — */
+  .dq-box {
+    background: var(--danger-light);
+    border: .5px solid var(--danger-border);
+    border-radius: var(--radius-md);
+    padding: 20px;
+  }
+  .dq-icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fed7d7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .dq-title { font-size: 16px; font-weight: 500; color: #742a2a; margin-bottom: 6px; }
+  .dq-msg { font-size: 13px; color: #9b2c2c; line-height: 1.6; }
+  .dq-saved-box {
+    background: var(--surface);
+    border: .5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .dq-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: var(--text-3); flex-shrink: 0; }
+  .dq-fire-ok { display: none; align-items: center; gap: 8px; padding: 10px 14px; background: #EAF3DE; border: .5px solid #97C459; border-radius: var(--radius-sm); font-size: 12px; color: #27500A; }
+
+  /* — Done header — */
+  .done-header { display: flex; align-items: center; gap: 12px; }
+  .done-icon-wrap { width: 44px; height: 44px; border-radius: 50%; background: var(--primary-light); border: .5px solid var(--primary-border); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .done-title { font-size: 18px; font-weight: 500; color: var(--text-1); }
+  .done-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+
+  /* — Responsive — */
+  @media (max-width: 480px) {
+    .card { padding: 24px 18px; }
+    .cal-body { grid-template-columns: 1fr; }
+    .cal-right { border-left: none; border-top: .5px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Meta Pixel — inserido dinamicamente via CONFIG.pixelId -->
+
+<div class="page-wrap">
+
+  <div class="top-bar">
+    <div class="brand-row">
+      <span class="brand-name" id="brand-name"></span>
+      <span class="brand-sep"></span>
+      <span class="brand-sub" id="brand-sub"></span>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-row">
+        <span class="prog-pct" id="prog-pct"></span>
+      </div>
+      <div class="prog-bar">
+        <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="main-card">
+
+    <!-- S0: Landing -->
+    <div class="screen active" id="s0">
+      <div class="q-title" id="landing-headline"></div>
+      <div class="bullets" id="landing-bullets"></div>
+      <div class="disclaimer" id="landing-disclaimer"></div>
+      <button class="btn-primary" id="landing-cta" onclick="goTo(1)"></button>
+    </div>
+
+    <!-- S1: Contact -->
+    <div class="screen" id="s1">
+      <div class="q-title" id="contact-title"></div>
+      <div class="field-group">
+        <div class="field-label">Nome completo <span class="req">*</span></div>
+        <input class="field-inp" id="inp-nome" type="text" placeholder="Seu nome completo" oninput="checkContact()">
+      </div>
+      <div class="field-group">
+        <div class="field-label">WhatsApp com DDD <span class="req">*</span></div>
+        <div class="phone-row">
+          <span class="phone-prefix">BR +55</span>
+          <input class="field-inp" id="inp-wpp" type="tel" placeholder="(51) 99999-9999" style="flex:1" oninput="checkContact()">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">E-mail</div>
+        <input class="field-inp" id="inp-email" type="email" placeholder="seu@email.com">
+      </div>
+      <div>
+        <button class="btn-primary" id="btn-contact" onclick="goTo(2)" disabled>Continuar →</button>
+        <div class="enter-hint" style="margin-top:8px">pressione <kbd>Enter ↵</kbd></div>
+      </div>
+    </div>
+
+    <!-- Questions — rendered dynamically -->
+    <div id="questions-container"></div>
+
+    <!-- Calendar -->
+    <div class="screen" id="s-cal">
+      <div style="font-size:13px;color:#666">98% concluído — agende sua reunião ⏳</div>
+      <div class="cal-container">
+        <div class="cal-header">
+          <div>
+            <div class="cal-meeting-name" id="cal-meeting-name"></div>
+            <div class="cal-meeting-dur">⏱ <span id="cal-meeting-dur"></span> · videochamada · gratuito</div>
+          </div>
+        </div>
+        <div class="cal-body">
+          <div class="cal-left">
+            <div class="cal-nav-row">
+              <span class="cal-month-lbl" id="cal-month-lbl"></span>
+              <div class="cal-nav-btns">
+                <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+                <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+              </div>
+            </div>
+            <div class="cal-grid" id="cal-grid"></div>
+          </div>
+          <div class="cal-right">
+            <div class="times-date-lbl" id="times-lbl">Selecione uma data</div>
+            <div class="times-list" id="times-list">
+              <div class="no-times-msg">Selecione<br>uma data</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-cal" onclick="goToConfirm()" disabled>Confirmar agendamento →</button>
+    </div>
+
+    <!-- Confirmation -->
+    <div class="screen" id="s-done">
+      <div class="done-header">
+        <div class="done-icon-wrap">✓</div>
+        <div>
+          <div class="done-title">Reunião confirmada</div>
+          <div class="done-sub">Você receberá confirmação no WhatsApp cadastrado.</div>
+        </div>
+      </div>
+      <div class="confirm-slot" id="conf-slot"></div>
+      <div class="confirm-data-box" id="conf-data"></div>
+      <div class="events-box">
+        <div class="events-lbl">Pixels disparados nessa sessão</div>
+        <div class="events-tags" id="conf-events"></div>
+      </div>
+    </div>
+
+    <!-- Disqualified -->
+    <div class="screen" id="s-dq">
+      <div class="dq-box">
+        <div class="dq-icon-circle">ℹ</div>
+        <div class="dq-title" id="dq-title"></div>
+        <div class="dq-msg" id="dq-msg"></div>
+      </div>
+      <div class="dq-saved-box" id="dq-saved">
+        <div class="dq-avatar" id="dq-avatar"></div>
+        <div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-1)" id="dq-saved-name"></div>
+          <div style="font-size:11px;color:var(--text-3)" id="dq-saved-wpp"></div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text-3)">Seus dados foram salvos. Deseja deixar contato para nutrição?</div>
+      <div class="dq-fire-ok" id="dq-fire">✓ Evento <strong style="margin:0 4px">LeadNurture</strong> disparado</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-primary" style="flex:1;font-size:13px;padding:12px" onclick="saveDQ()">Salvar contato →</button>
+        <button class="btn-ghost" style="flex:1;font-size:13px" onclick="goBackDQ()">← Rever resposta</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ——— Apply CONFIG to CSS ———
+document.documentElement.style.setProperty('--primary', CONFIG.primaryColor);
+document.documentElement.style.setProperty('--primary-dark', shadeColor(CONFIG.primaryColor, -15));
+document.documentElement.style.setProperty('--primary-light', shadeColor(CONFIG.primaryColor, 94));
+document.getElementById('prog-fill').style.background = CONFIG.primaryColor;
+
+function shadeColor(hex, pct) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.min(255, Math.max(0, (n >> 16) + pct * 2.55 | 0));
+  const g = Math.min(255, Math.max(0, ((n >> 8) & 0xff) + pct * 2.55 | 0));
+  const b = Math.min(255, Math.max(0, (n & 0xff) + pct * 2.55 | 0));
+  return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+
+// ——— Inject Meta Pixel ———
+if (CONFIG.pixelId && CONFIG.pixelId !== 'SEU_PIXEL_ID_AQUI') {
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', CONFIG.pixelId);
+  fbq('track', 'PageView');
+}
+function firePixel(event) {
+  if (window.fbq) fbq('trackCustom', event);
+}
+
+// ——— Brand ———
+document.getElementById('brand-name').textContent = CONFIG.brandName;
+document.getElementById('brand-sub').textContent  = CONFIG.brandSub;
+
+// ——— Landing ———
+document.getElementById('landing-headline').innerHTML = CONFIG.headline;
+document.getElementById('landing-disclaimer').textContent = CONFIG.disclaimer;
+document.getElementById('landing-cta').textContent = CONFIG.ctaLabel + ' →';
+const bulletsEl = document.getElementById('landing-bullets');
+CONFIG.bullets.forEach(b => {
+  bulletsEl.innerHTML += `<div class="bullet"><span class="bullet-icon" style="color:${b.color}">${b.icon}</span><span>${b.text}</span></div>`;
+});
+
+// ——— Contact ———
+document.getElementById('contact-title').innerHTML = CONFIG.contactTitle;
+
+// ——— Build question screens ———
+const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const qContainer = document.getElementById('questions-container');
+CONFIG.questions.forEach((q, qi) => {
+  const screenId = 'sq' + qi;
+  const div = document.createElement('div');
+  div.className = 'screen';
+  div.id = screenId;
+  let optsHtml = q.options.map((o, oi) => `
+    <button class="opt-btn${o.disqualify ? ' dq-option' : ''}"
+      data-idx="${oi}"
+      data-qi="${qi}"
+      onclick="pickOpt(${qi},${oi})"
+    >
+      <span class="opt-key">${ALPHA[oi]}</span>
+      <span>${o.text}</span>
+    </button>`).join('');
+  div.innerHTML = `
+    <div class="q-title">${q.title} <span class="req">*</span></div>
+    <div class="opts" id="opts-${qi}">${optsHtml}</div>
+    <div>
+      <button class="btn-primary" id="btn-q${qi}" onclick="advanceQ(${qi})" disabled>Continuar →</button>
+      <div class="enter-hint" style="margin-top:8px">pressione <kbd>Enter ↵</kbd></div>
+    </div>`;
+  qContainer.appendChild(div);
+});
+
+// ——— Calendar ———
+document.getElementById('cal-meeting-name').textContent = CONFIG.meetingName;
+document.getElementById('cal-meeting-dur').textContent  = CONFIG.meetingDuration;
+
+// ——— State ———
+const STATE = {
+  answers: {},
+  events: [],
+  dqFromQ: 0,
+  selDay: null,
+  selTime: null,
+  calYear: new Date().getFullYear(),
+  calMonth: new Date().getMonth()
+};
+
+const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DAYS_SHORT = ['dom','seg','ter','qua','qui','sex','sáb'];
+const TIMES_BY_DOW = { 0:[], 1:['09:00','09:30','10:00','10:30','14:00','14:30','15:00'], 2:['09:00','10:00','11:00','14:00','15:00','15:30'], 3:['09:30','10:30','14:00','14:30','15:00','16:00'], 4:['09:00','09:30','10:00','14:30','15:00'], 5:['09:00','10:00','11:00'], 6:[] };
+
+// Progress steps: 0=landing, 1=contact, 2..n=questions, n+1=calendar, n+2=done
+const TOTAL_STEPS = 2 + CONFIG.questions.length + 2;
+function getProgress(step) { return Math.round((step / (TOTAL_STEPS - 1)) * 100); }
+
+function setProgress(step) {
+  const pct = getProgress(step);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct > 0 ? pct + '% concluído' : '';
+}
+
+function hideAll() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+}
+
+function goTo(screenId, step) {
+  hideAll();
+  document.getElementById(screenId).classList.add('active');
+  if (step !== undefined) setProgress(step);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Step 0 → landing, step 1 → contact, step 2..n+1 → questions
+function goToQ(qi) { goTo('sq' + qi, 2 + qi); }
+function goToCal()  { goTo('s-cal', 2 + CONFIG.questions.length); renderCal(); }
+function goToConfirm() { buildConfirm(); goTo('s-done', TOTAL_STEPS - 1); }
+function goToDQ()   { goTo('s-dq', 100); setProgress(TOTAL_STEPS); document.getElementById('prog-fill').style.width = '100%'; document.getElementById('prog-pct').textContent = ''; }
+
+// ——— Contact validation ———
+function checkContact() {
+  const nome = document.getElementById('inp-nome').value.trim();
+  const wpp  = document.getElementById('inp-wpp').value.trim();
+  document.getElementById('btn-contact').disabled = !(nome && wpp);
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const active = document.querySelector('.screen.active');
+  if (!active) return;
+  const btn = active.querySelector('.btn-primary:not(:disabled)');
+  if (btn) btn.click();
+});
+
+// ——— Pick option ———
+function pickOpt(qi, oi) {
+  const q = CONFIG.questions[qi];
+  const o = q.options[oi];
+  document.querySelectorAll(`#opts-${qi} .opt-btn`).forEach(b => b.classList.remove('selected'));
+  document.querySelector(`#opts-${qi} [data-idx="${oi}"]`).classList.add('selected');
+  STATE.answers['q' + qi] = { qi, oi, text: o.text, event: o.event, disqualify: o.disqualify };
+  if (!STATE.events.includes(o.event)) STATE.events.push(o.event);
+  firePixel(o.event);
+  document.getElementById('btn-q' + qi).disabled = false;
+  if (o.disqualify) {
+    STATE.dqFromQ = qi;
+    setTimeout(() => {
+      const nome = document.getElementById('inp-nome').value || 'Lead';
+      document.getElementById('dq-title').textContent = 'Não é o momento ideal';
+      document.getElementById('dq-msg').textContent   = q.dqMsg || 'Obrigado pelo interesse. Deixa seu contato para futuras oportunidades.';
+      document.getElementById('dq-avatar').textContent = nome.charAt(0).toUpperCase();
+      document.getElementById('dq-saved-name').textContent = nome;
+      document.getElementById('dq-saved-wpp').textContent  = 'WhatsApp: ' + (document.getElementById('inp-wpp').value || '—');
+      goToDQ();
+    }, 600);
+  }
+}
+
+function advanceQ(qi) {
+  const ans = STATE.answers['q' + qi];
+  if (!ans || ans.disqualify) return;
+  if (qi + 1 < CONFIG.questions.length) goToQ(qi + 1);
+  else goToCal();
+}
+
+function goBackDQ() {
+  const qi = STATE.dqFromQ;
+  document.querySelectorAll(`#opts-${qi} .opt-btn`).forEach(b => b.classList.remove('selected'));
+  document.getElementById('btn-q' + qi).disabled = true;
+  delete STATE.answers['q' + qi];
+  goToQ(qi);
+}
+
+function saveDQ() {
+  if (!STATE.events.includes('LeadNurture')) STATE.events.push('LeadNurture');
+  firePixel('LeadNurture');
+  const el = document.getElementById('dq-fire');
+  el.style.display = 'flex';
+  saveToSupabase('disqualified');
+}
+
+// ——— Calendar ———
+function renderCal() {
+  const y = STATE.calYear, m = STATE.calMonth;
+  document.getElementById('cal-month-lbl').textContent = MONTHS[m] + ' ' + y;
+  const first = new Date(y, m, 1).getDay();
+  const days  = new Date(y, m + 1, 0).getDate();
+  const today = new Date();
+  let html = DAYS_SHORT.map(d => `<div class="cal-day-lbl">${d}</div>`).join('');
+  for (let i = 0; i < first; i++) html += '<div class="cal-day empty"></div>';
+  for (let d = 1; d <= days; d++) {
+    const dt  = new Date(y, m, d);
+    const dow = dt.getDay();
+    const past    = dt < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const noSlots = (TIMES_BY_DOW[dow] || []).length === 0;
+    const isToday = d === today.getDate() && m === today.getMonth() && y === today.getFullYear();
+    const isSel   = STATE.selDay === d && STATE.calMonth === m && STATE.calYear === y;
+    let cls = 'cal-day';
+    if (past || noSlots) cls += ' past';
+    if (isToday) cls += ' today';
+    if (isSel)   cls += ' selected-day';
+    const click = (!past && !noSlots) ? `onclick="selectDay(${d})"` : '';
+    html += `<div class="${cls}" ${click}>${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
+function selectDay(d) {
+  STATE.selDay  = d;
+  STATE.selTime = null;
+  renderCal();
+  const dow   = new Date(STATE.calYear, STATE.calMonth, d).getDay();
+  const times = TIMES_BY_DOW[dow] || [];
+  document.getElementById('times-lbl').textContent = d + ' de ' + MONTHS[STATE.calMonth];
+  document.getElementById('btn-cal').disabled = true;
+  if (!times.length) {
+    document.getElementById('times-list').innerHTML = '<div class="no-times-msg">Nenhum horário<br>disponível nessa data</div>';
+    return;
+  }
+  document.getElementById('times-list').innerHTML = times.map(t =>
+    `<div class="time-slot" onclick="selectTime('${t}')">${t}</div>`
+  ).join('');
+}
+
+function selectTime(t) {
+  STATE.selTime = t;
+  document.querySelectorAll('.time-slot').forEach(el => el.classList.toggle('selected-time', el.textContent === t));
+  document.getElementById('btn-cal').disabled = false;
+  if (!STATE.events.includes('LeadAgendado')) STATE.events.push('LeadAgendado');
+  firePixel('LeadAgendado');
+}
+
+function changeMonth(dir) {
+  STATE.calMonth += dir;
+  if (STATE.calMonth > 11) { STATE.calMonth = 0; STATE.calYear++; }
+  if (STATE.calMonth < 0)  { STATE.calMonth = 11; STATE.calYear--; }
+  STATE.selDay = null; STATE.selTime = null;
+  document.getElementById('times-lbl').textContent = 'Selecione uma data';
+  document.getElementById('times-list').innerHTML  = '<div class="no-times-msg">Selecione<br>uma data</div>';
+  document.getElementById('btn-cal').disabled = true;
+  renderCal();
+}
+
+// ——— Build confirmation ———
+function buildConfirm() {
+  const nome  = document.getElementById('inp-nome').value;
+  const wpp   = document.getElementById('inp-wpp').value;
+  const email = document.getElementById('inp-email').value;
+  const date  = STATE.selDay + ' de ' + MONTHS[STATE.calMonth] + ' de ' + STATE.calYear;
+  document.getElementById('conf-slot').innerHTML = `
+    <div class="confirm-icon">✓</div>
+    <div>
+      <div class="confirm-main">${date} às ${STATE.selTime}</div>
+      <div class="confirm-sub">${CONFIG.meetingName} · ${CONFIG.meetingDuration}</div>
+    </div>`;
+  document.getElementById('conf-data').innerHTML = `
+    <strong>${nome}</strong><br>
+    WhatsApp: +55 ${wpp}${email ? '<br>E-mail: ' + email : ''}`;
+  document.getElementById('conf-events').innerHTML = STATE.events.map(e =>
+    `<span class="ev-tag">${e}</span>`).join('');
+  saveToSupabase('qualified');
+  if (CONFIG.successRedirect) setTimeout(() => window.location.href = CONFIG.successRedirect, 3000);
+}
+
+// ——— Supabase save ———
+async function saveToSupabase(status) {
+  if (!CONFIG.supabaseUrl || !CONFIG.supabaseKey) return;
+  try {
+    const payload = {
+      nome:    document.getElementById('inp-nome').value,
+      wpp:     document.getElementById('inp-wpp').value,
+      email:   document.getElementById('inp-email').value,
+      status,
+      eventos: STATE.events.join(', '),
+      agendado_em:     STATE.selDay ? STATE.selDay + '/' + (STATE.calMonth+1) + '/' + STATE.calYear : null,
+      horario_reuniao: STATE.selTime || null,
+      ...Object.fromEntries(Object.entries(STATE.answers).map(([k,v]) => [k, v.text]))
+    };
+    await fetch(CONFIG.supabaseUrl + '/rest/v1/leads', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'return=minimal' },
+      body:    JSON.stringify(payload)
+    });
+  } catch(e) { console.warn('Supabase save failed:', e); }
+}
+
+// ——— Init ———
+goTo('s0', 0);
+</script>
+</body>
+</html>
