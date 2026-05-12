@@ -4,13 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Grupo Hunter — Diagnóstico Gratuito</title>
+<link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+<script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
 <script>
 const CONFIG = {
   brandName:    "Grupo Hunter",
   brandSub:     "Aceleradora de Negócios da Saúde",
   primaryColor: "#1a7a3a",
-  pixelId: "869722805299080",
-  meetingName:     "Diagnóstico Estratégico",
+  pixelId: "SEU_PIXEL_ID_AQUI",
+  calendlyUrl:  "https://calendly.com/contaprincipalvini/reuniao-vinicius",
+  meetingName:  "Diagnóstico Estratégico",
   meetingDuration: "30 minutos",
   headline:    "Doutora, <strong>multiplique o faturamento da sua clínica</strong> vendendo alto valor para pacientes alto padrão, sem depender de agência de tráfego.",
   bullets: [
@@ -38,8 +41,7 @@ const CONFIG = {
     {
       id: "q2", name: "Especialidade",
       title: "Qual a sua especialidade hoje?",
-      multiSelect: false,
-      dqTitle: "", dqMsg: "",
+      multiSelect: false, dqTitle: "", dqMsg: "",
       options: [
         { text: "Harmonizadora",             event: "SegHarmonizadora", disqualify: false },
         { text: "Nutróloga / Emagrecimento", event: "SegNutrologa",     disqualify: false },
@@ -64,13 +66,12 @@ const CONFIG = {
     {
       id: "q4", name: "Captação",
       title: "Como você atrai novos pacientes hoje?",
-      multiSelect: true,
-      dqTitle: "", dqMsg: "",
+      multiSelect: true, dqTitle: "", dqMsg: "",
       options: [
-        { text: "Só indicação, sem nada ativo",      event: "CapIndicacao", disqualify: false },
-        { text: "Já fiz ou faço tráfego pago",       event: "CapTrafego",   disqualify: false },
-        { text: "Prospecção ativa",                  event: "CapAtivo",     disqualify: false },
-        { text: "Já tenho processo, quero escalar",  event: "CapEscala",    disqualify: false }
+        { text: "Só indicação, sem nada ativo",     event: "CapIndicacao", disqualify: false },
+        { text: "Já fiz ou faço tráfego pago",      event: "CapTrafego",   disqualify: false },
+        { text: "Prospecção ativa",                 event: "CapAtivo",     disqualify: false },
+        { text: "Já tenho processo, quero escalar", event: "CapEscala",    disqualify: false }
       ]
     },
     {
@@ -94,283 +95,80 @@ const CONFIG = {
 
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
   :root {
-    --primary: #1a7a3a;
-    --primary-dark: #155f2d;
-    --primary-light: #f0faf3;
-    --primary-border: #9ae6b4;
-    --danger: #e53e3e;
-    --danger-light: #fff5f5;
-    --danger-border: #feb2b2;
-    --text-1: #1a1a1a;
-    --text-2: #444;
-    --text-3: #888;
-    --border: #e8e8e8;
-    --surface: #f9f9f9;
-    --white: #ffffff;
-    --font: 'Inter', sans-serif;
+    --primary:#1a7a3a;--primary-dark:#155f2d;--primary-light:#f0faf3;
+    --primary-border:#9ae6b4;--danger:#e53e3e;--danger-light:#fff5f5;
+    --danger-border:#feb2b2;--text-1:#1a1a1a;--text-2:#444;--text-3:#888;
+    --border:#e8e8e8;--surface:#f9f9f9;--white:#ffffff;--font:'Inter',sans-serif;
   }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    font-family: var(--font);
-    background: var(--white);
-    color: var(--text-1);
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ——— Layout ——— */
-  .page {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 0 24px 80px;
-  }
-
-  /* ——— Progress ——— */
-  .prog-bar {
-    height: 3px;
-    background: #efefef;
-    width: 100%;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .prog-fill {
-    height: 100%;
-    background: var(--primary);
-    transition: width .5s cubic-bezier(.4,0,.2,1);
-  }
-
-  /* ——— Brand ——— */
-  .brand {
-    padding: 32px 0 0;
-    text-align: center;
-    margin-bottom: 48px;
-  }
-  .brand-name {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-3);
-    text-transform: uppercase;
-    letter-spacing: .1em;
-  }
-  .brand-sub {
-    font-size: 11px;
-    color: #bbb;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    margin-top: 3px;
-  }
-
-  /* ——— Screens ——— */
-  .screen { display: none; flex-direction: column; gap: 28px; padding-top: 8px; }
-  .screen.active { display: flex; animation: up .2s ease; }
-  @keyframes up { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-
-  /* ——— Question title ——— */
-  .q-title {
-    font-size: 26px;
-    font-weight: 600;
-    line-height: 1.35;
-    color: var(--text-1);
-  }
-  .q-title strong { font-weight: 700; }
-  .req { color: var(--danger); }
-
-  /* ——— Bullets (landing) ——— */
-  .bullets { display: flex; flex-direction: column; gap: 14px; }
-  .bullet { display: flex; align-items: flex-start; gap: 12px; font-size: 16px; color: var(--text-2); line-height: 1.5; }
-  .bullet-icon { font-size: 15px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
-
-  /* ——— Disclaimer ——— */
-  .disclaimer {
-    font-size: 14px;
-    color: var(--text-3);
-    line-height: 1.6;
-    border-left: 2px solid #e0e0e0;
-    padding-left: 14px;
-    font-style: italic;
-  }
-
-  /* ——— CTA button ——— */
-  .btn-primary {
-    width: 100%;
-    padding: 18px 24px;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-family: var(--font);
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: .05em;
-    cursor: pointer;
-    transition: background .15s, transform .1s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .btn-primary:hover { background: var(--primary-dark); }
-  .btn-primary:active { transform: scale(.99); }
-  .btn-primary:disabled { opacity: .3; cursor: not-allowed; transform: none; }
-
-  .btn-back {
-    background: none;
-    border: none;
-    font-family: var(--font);
-    font-size: 14px;
-    color: var(--text-3);
-    cursor: pointer;
-    padding: 4px 0;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: color .15s;
-  }
-  .btn-back:hover { color: var(--text-1); }
-
-  .enter-hint { font-size: 12px; color: #bbb; }
-  .enter-hint kbd { background: #f3f3f3; border: .5px solid #ddd; border-radius: 4px; padding: 1px 7px; font-size: 11px; font-family: monospace; }
-
-  .btn-row { display: flex; flex-direction: column; gap: 12px; }
-
-  /* ——— Input fields ——— */
-  .field-group { display: flex; flex-direction: column; gap: 8px; }
-  .field-label { font-size: 13px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .07em; }
-  .field-inp {
-    width: 100%;
-    padding: 14px 0;
-    border: none;
-    border-bottom: 2px solid #e0e0e0;
-    font-family: var(--font);
-    font-size: 18px;
-    color: var(--text-1);
-    background: transparent;
-    outline: none;
-    transition: border-color .15s;
-  }
-  .field-inp:focus { border-bottom-color: var(--primary); }
-  .field-inp::placeholder { color: #ccc; }
-  .field-inp.error { border-bottom-color: var(--danger); }
-  .wpp-error { font-size: 12px; color: var(--danger); display: none; margin-top: 2px; }
-  .phone-row { display: flex; align-items: flex-end; gap: 10px; }
-  .phone-prefix {
-    font-size: 16px;
-    color: var(--text-3);
-    border-bottom: 2px solid #e0e0e0;
-    padding: 14px 10px 14px 0;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  /* ——— Options ——— */
-  .opts { display: flex; flex-direction: column; gap: 10px; }
-  .opt-btn {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 20px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    background: var(--white);
-    cursor: pointer;
-    font-family: var(--font);
-    font-size: 16px;
-    color: var(--text-1);
-    text-align: left;
-    transition: all .12s;
-    width: 100%;
-    line-height: 1.4;
-  }
-  .opt-btn:hover { border-color: var(--primary); background: var(--primary-light); }
-  .opt-btn.selected { border-color: var(--primary); background: var(--primary-light); }
-  .opt-btn.dq-option:hover { border-color: var(--danger); background: var(--danger-light); }
-  .opt-key {
-    width: 30px;
-    height: 30px;
-    border-radius: 6px;
-    background: #f3f3f3;
-    border: 1.5px solid #ddd;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all .12s;
-  }
-  .opt-btn.selected .opt-key { background: var(--primary); border-color: var(--primary); color: white; }
-  .opt-btn.dq-option.selected .opt-key { background: var(--danger); border-color: var(--danger); color: white; }
-
-  .multi-hint { font-size: 13px; color: var(--text-3); }
-
-  /* ——— Calendar ——— */
-  .cal-header { margin-bottom: 20px; }
-  .cal-meeting-name { font-size: 18px; font-weight: 600; color: var(--text-1); }
-  .cal-meeting-dur { font-size: 14px; color: var(--text-3); margin-top: 4px; }
-  .cal-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
-  .cal-left { padding: 16px; }
-  .cal-right { border-left: 1.5px solid var(--border); padding: 16px; background: var(--surface); }
-  .cal-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .cal-month-lbl { font-size: 14px; font-weight: 600; color: var(--text-1); }
-  .cal-nav-btns { display: flex; gap: 4px; }
-  .cal-nav-btn { width: 28px; height: 28px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--white); cursor: pointer; font-size: 14px; color: var(--text-2); display: flex; align-items: center; justify-content: center; }
-  .cal-nav-btn:hover { background: var(--surface); }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-  .cal-day-lbl { text-align: center; font-size: 10px; color: var(--text-3); font-weight: 600; padding: 4px 0; }
-  .cal-day { text-align: center; font-size: 12px; padding: 6px 2px; border-radius: 50%; cursor: pointer; color: var(--text-1); transition: all .1s; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
-  .cal-day:hover:not(.past):not(.empty):not(.no-slots) { background: var(--primary-light); color: var(--primary); }
-  .cal-day.selected-day { background: var(--primary); color: white; font-weight: 700; }
-  .cal-day.past, .cal-day.no-slots { color: #ccc; cursor: default; }
-  .cal-day.today { font-weight: 700; }
-  .cal-day.empty { cursor: default; }
-  .times-lbl-txt { font-size: 12px; color: var(--text-3); margin-bottom: 10px; font-weight: 500; }
-  .times-list { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
-  .time-slot { padding: 10px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 13px; color: var(--text-1); background: var(--white); cursor: pointer; text-align: center; transition: all .1s; font-weight: 500; }
-  .time-slot:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-  .time-slot.selected-time { background: var(--primary); border-color: var(--primary); color: white; }
-  .no-times-msg { font-size: 12px; color: var(--text-3); text-align: center; padding: 24px 8px; line-height: 1.6; }
-
-  /* ——— Confirmation ——— */
-  .confirm-slot { display: flex; align-items: center; gap: 14px; padding: 16px 18px; background: var(--primary-light); border: 1.5px solid var(--primary-border); border-radius: 8px; }
-  .confirm-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; color: white; }
-  .confirm-main { font-size: 16px; font-weight: 600; color: #0d4a22; }
-  .confirm-sub { font-size: 13px; color: #276749; margin-top: 3px; }
-  .confirm-data { background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px; padding: 16px 18px; font-size: 14px; color: var(--text-2); line-height: 2; }
-  .confirm-data strong { color: var(--text-1); font-weight: 600; }
-  .events-box { padding: 14px 16px; background: #EEEDFE; border: 1px solid #AFA9EC; border-radius: 8px; }
-  .events-lbl { font-size: 11px; color: #534AB7; text-transform: uppercase; letter-spacing: .07em; font-weight: 600; margin-bottom: 8px; }
-  .events-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .ev-tag { background: white; color: #3C3489; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 10px; border: .5px solid #AFA9EC; font-family: monospace; }
-
-  /* ——— DQ ——— */
-  .dq-wrap { display: flex; flex-direction: column; gap: 20px; }
-  .dq-emoji { font-size: 36px; margin-bottom: 4px; }
-  .dq-title { font-size: 22px; font-weight: 700; color: var(--text-1); }
-  .dq-msg { font-size: 16px; color: var(--text-2); line-height: 1.7; }
-  .dq-divider { height: 1px; background: var(--border); }
-  .dq-saved { display: flex; align-items: center; gap: 12px; }
-  .dq-avatar { width: 36px; height: 36px; border-radius: 50%; background: #e8e8e8; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-3); flex-shrink: 0; }
-  .dq-saved-name { font-size: 14px; font-weight: 600; color: var(--text-1); }
-  .dq-saved-wpp { font-size: 12px; color: var(--text-3); margin-top: 2px; }
-  .dq-fire-ok { display: none; align-items: center; gap: 8px; padding: 12px 16px; background: #EAF3DE; border: 1px solid #97C459; border-radius: 8px; font-size: 13px; color: #27500A; font-weight: 500; }
-
-  /* ——— Done ——— */
-  .done-emoji { font-size: 40px; }
-  .done-title { font-size: 24px; font-weight: 700; color: var(--text-1); }
-  .done-sub { font-size: 15px; color: var(--text-3); line-height: 1.5; }
-
-  /* ——— Responsive ——— */
-  @media (max-width: 480px) {
-    .q-title { font-size: 22px; }
-    .cal-wrap { grid-template-columns: 1fr; }
-    .cal-right { border-left: none; border-top: 1.5px solid var(--border); }
-  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{font-family:var(--font);background:var(--white);color:var(--text-1);min-height:100vh;-webkit-font-smoothing:antialiased}
+  .prog-bar{height:3px;background:#efefef;width:100%;position:sticky;top:0;z-index:10}
+  .prog-fill{height:100%;background:var(--primary);transition:width .5s cubic-bezier(.4,0,.2,1)}
+  .page{max-width:600px;margin:0 auto;padding:0 24px 80px}
+  .brand{padding:32px 0 0;text-align:center;margin-bottom:48px}
+  .brand-name{font-size:13px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em}
+  .brand-sub{font-size:11px;color:#bbb;letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+  .screen{display:none;flex-direction:column;gap:28px;padding-top:8px}
+  .screen.active{display:flex;animation:up .2s ease}
+  @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .q-title{font-size:26px;font-weight:600;line-height:1.35;color:var(--text-1)}
+  .q-title strong{font-weight:700}
+  .req{color:var(--danger)}
+  .multi-hint{font-size:13px;color:var(--text-3)}
+  .bullets{display:flex;flex-direction:column;gap:14px}
+  .bullet{display:flex;align-items:flex-start;gap:12px;font-size:16px;color:var(--text-2);line-height:1.5}
+  .bullet-icon{font-size:15px;font-weight:700;flex-shrink:0;margin-top:2px}
+  .disclaimer{font-size:14px;color:var(--text-3);line-height:1.6;border-left:2px solid #e0e0e0;padding-left:14px;font-style:italic}
+  .btn-primary{width:100%;padding:18px 24px;background:var(--primary);color:white;border:none;border-radius:8px;font-family:var(--font);font-size:15px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:background .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-primary:hover{background:var(--primary-dark)}
+  .btn-primary:active{transform:scale(.99)}
+  .btn-primary:disabled{opacity:.3;cursor:not-allowed;transform:none}
+  .btn-back{background:none;border:none;font-family:var(--font);font-size:14px;color:var(--text-3);cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:6px;transition:color .15s}
+  .btn-back:hover{color:var(--text-1)}
+  .btn-row{display:flex;flex-direction:column;gap:12px}
+  .enter-hint{font-size:12px;color:#bbb}
+  .enter-hint kbd{background:#f3f3f3;border:.5px solid #ddd;border-radius:4px;padding:1px 7px;font-size:11px;font-family:monospace}
+  .field-group{display:flex;flex-direction:column;gap:8px}
+  .field-label{font-size:13px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em}
+  .field-inp{width:100%;padding:14px 0;border:none;border-bottom:2px solid #e0e0e0;font-family:var(--font);font-size:18px;color:var(--text-1);background:transparent;outline:none;transition:border-color .15s}
+  .field-inp:focus{border-bottom-color:var(--primary)}
+  .field-inp::placeholder{color:#ccc}
+  .field-inp.error{border-bottom-color:var(--danger)}
+  .wpp-error{font-size:12px;color:var(--danger);display:none;margin-top:2px}
+  .phone-row{display:flex;align-items:flex-end;gap:10px}
+  .phone-prefix{font-size:16px;color:var(--text-3);border-bottom:2px solid #e0e0e0;padding:14px 10px 14px 0;white-space:nowrap;flex-shrink:0}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt-btn{display:flex;align-items:center;gap:14px;padding:16px 20px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;font-family:var(--font);font-size:16px;color:var(--text-1);text-align:left;transition:all .12s;width:100%;line-height:1.4}
+  .opt-btn:hover{border-color:var(--primary);background:var(--primary-light)}
+  .opt-btn.selected{border-color:var(--primary);background:var(--primary-light)}
+  .opt-btn.dq-option:hover{border-color:var(--danger);background:var(--danger-light)}
+  .opt-key{width:30px;height:30px;border-radius:6px;background:#f3f3f3;border:1.5px solid #ddd;font-size:12px;font-weight:700;color:var(--text-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s}
+  .opt-btn.selected .opt-key{background:var(--primary);border-color:var(--primary);color:white}
+  .opt-btn.dq-option.selected .opt-key{background:var(--danger);border-color:var(--danger);color:white}
+  .confirm-slot{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--primary-light);border:1.5px solid var(--primary-border);border-radius:8px}
+  .confirm-icon{width:40px;height:40px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;color:white}
+  .confirm-main{font-size:16px;font-weight:600;color:#0d4a22}
+  .confirm-sub{font-size:13px;color:#276749;margin-top:3px}
+  .confirm-data{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:16px 18px;font-size:14px;color:var(--text-2);line-height:2}
+  .confirm-data strong{color:var(--text-1);font-weight:600}
+  .events-box{padding:14px 16px;background:#EEEDFE;border:1px solid #AFA9EC;border-radius:8px}
+  .events-lbl{font-size:11px;color:#534AB7;text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:8px}
+  .events-tags{display:flex;flex-wrap:wrap;gap:6px}
+  .ev-tag{background:white;color:#3C3489;font-size:10px;font-weight:600;padding:3px 9px;border-radius:10px;border:.5px solid #AFA9EC;font-family:monospace}
+  .dq-emoji{font-size:36px;margin-bottom:4px}
+  .dq-title{font-size:22px;font-weight:700;color:var(--text-1)}
+  .dq-msg{font-size:16px;color:var(--text-2);line-height:1.7}
+  .dq-divider{height:1px;background:var(--border)}
+  .dq-saved{display:flex;align-items:center;gap:12px}
+  .dq-avatar{width:36px;height:36px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text-3);flex-shrink:0}
+  .dq-saved-name{font-size:14px;font-weight:600;color:var(--text-1)}
+  .dq-saved-wpp{font-size:12px;color:var(--text-3);margin-top:2px}
+  .dq-fire-ok{display:none;align-items:center;gap:8px;padding:12px 16px;background:#EAF3DE;border:1px solid #97C459;border-radius:8px;font-size:13px;color:#27500A;font-weight:500}
+  .done-emoji{font-size:40px}
+  .done-title{font-size:24px;font-weight:700;color:var(--text-1)}
+  .done-sub{font-size:15px;color:var(--text-3);line-height:1.5}
+  @media(max-width:480px){.q-title{font-size:22px}}
 </style>
 </head>
 <body>
@@ -422,30 +220,13 @@ const CONFIG = {
   <!-- Perguntas dinâmicas -->
   <div id="questions-container"></div>
 
-  <!-- Calendário -->
+  <!-- Calendly -->
   <div class="screen" id="s-cal">
-    <div>
-      <div class="cal-meeting-name" id="cal-meeting-name"></div>
-      <div class="cal-meeting-dur">⏱ <span id="cal-meeting-dur"></span> · videochamada · gratuito</div>
-    </div>
-    <div class="cal-wrap">
-      <div class="cal-left">
-        <div class="cal-nav-row">
-          <span class="cal-month-lbl" id="cal-month-lbl"></span>
-          <div class="cal-nav-btns">
-            <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
-            <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
-          </div>
-        </div>
-        <div class="cal-grid" id="cal-grid"></div>
-      </div>
-      <div class="cal-right">
-        <div class="times-lbl-txt" id="times-lbl">Selecione uma data</div>
-        <div class="times-list" id="times-list"><div class="no-times-msg">Selecione<br>uma data</div></div>
-      </div>
-    </div>
+    <div style="font-size:13px;color:var(--text-3);text-align:center">98% concluído ⏳</div>
+    <div style="font-size:22px;font-weight:700;color:var(--text-1)">Agende sua reunião de diagnóstico</div>
+    <div style="font-size:15px;color:var(--text-3)">⏱ 30 minutos · videochamada · gratuito</div>
+    <div id="calendly-embed" style="min-height:650px;border-radius:10px;overflow:hidden"></div>
     <div class="btn-row">
-      <button class="btn-primary" id="btn-cal" onclick="goToConfirm()" disabled>Confirmar agendamento →</button>
       <button class="btn-back" onclick="goToQ(CONFIG.questions.length-1)">← Voltar</button>
     </div>
   </div>
@@ -465,26 +246,24 @@ const CONFIG = {
 
   <!-- Desqualificado -->
   <div class="screen" id="s-dq">
-    <div class="dq-wrap">
+    <div>
+      <div class="dq-emoji">🤍</div>
+      <div class="dq-title" id="dq-title"></div>
+      <div class="dq-msg" id="dq-msg" style="margin-top:10px"></div>
+    </div>
+    <div class="dq-divider"></div>
+    <div class="dq-saved">
+      <div class="dq-avatar" id="dq-avatar"></div>
       <div>
-        <div class="dq-emoji">🤍</div>
-        <div class="dq-title" id="dq-title"></div>
-        <div class="dq-msg" id="dq-msg" style="margin-top:10px"></div>
+        <div class="dq-saved-name" id="dq-saved-name"></div>
+        <div class="dq-saved-wpp" id="dq-saved-wpp"></div>
       </div>
-      <div class="dq-divider"></div>
-      <div class="dq-saved">
-        <div class="dq-avatar" id="dq-avatar"></div>
-        <div>
-          <div class="dq-saved-name" id="dq-saved-name"></div>
-          <div class="dq-saved-wpp" id="dq-saved-wpp"></div>
-        </div>
-      </div>
-      <div style="font-size:14px;color:var(--text-3)">Deseja deixar contato para quando o momento chegar?</div>
-      <div class="dq-fire-ok" id="dq-fire">✓ Contato salvo. Te avisamos em breve.</div>
-      <div style="display:flex;gap:10px">
-        <button class="btn-primary" style="flex:1;font-size:14px;padding:14px" onclick="saveDQ()">Salvar contato →</button>
-        <button class="btn-primary" style="flex:1;font-size:14px;padding:14px;background:#f3f3f3;color:var(--text-2)" onclick="goBackDQ()">← Rever resposta</button>
-      </div>
+    </div>
+    <div style="font-size:14px;color:var(--text-3)">Deseja deixar contato para quando o momento chegar?</div>
+    <div class="dq-fire-ok" id="dq-fire">✓ Contato salvo. Te avisamos em breve.</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn-primary" style="flex:1;font-size:14px;padding:14px" onclick="saveDQ()">Salvar contato →</button>
+      <button class="btn-primary" style="flex:1;font-size:14px;padding:14px;background:#f3f3f3;color:var(--text-2)" onclick="goBackDQ()">← Rever resposta</button>
     </div>
   </div>
 
@@ -494,7 +273,7 @@ const CONFIG = {
 document.documentElement.style.setProperty('--primary', CONFIG.primaryColor);
 document.getElementById('prog-fill').style.background = CONFIG.primaryColor;
 
-if (CONFIG.pixelId && CONFIG.pixelId !== 'SEU_PIXEL_ID_AQUI') {
+if (CONFIG.pixelId && CONFIG.pixelId !== '869722805299080') {
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', CONFIG.pixelId);
   fbq('track', 'PageView');
@@ -506,69 +285,63 @@ document.getElementById('brand-sub').textContent      = CONFIG.brandSub;
 document.getElementById('landing-headline').innerHTML  = CONFIG.headline;
 document.getElementById('landing-disclaimer').textContent = CONFIG.disclaimer;
 document.getElementById('landing-cta').textContent    = CONFIG.ctaLabel + ' →';
-CONFIG.bullets.forEach(b => {
+CONFIG.bullets.forEach(function(b) {
   document.getElementById('landing-bullets').innerHTML +=
-    `<div class="bullet"><span class="bullet-icon" style="color:${b.color}">${b.icon}</span><span>${b.text}</span></div>`;
+    '<div class="bullet"><span class="bullet-icon" style="color:' + b.color + '">' + b.icon + '</span><span>' + b.text + '</span></div>';
 });
 document.getElementById('contact-title').innerHTML = CONFIG.contactTitle;
 
 function maskWpp(el) {
-  let v = el.value.replace(/\D/g,'').slice(0,11);
+  var v = el.value.replace(/\D/g,'').slice(0,11);
   if      (v.length<=2) v = v.replace(/^(\d{0,2})/,'($1');
   else if (v.length<=7) v = v.replace(/^(\d{2})(\d{0,5})/,'($1) $2');
   else                  v = v.replace(/^(\d{2})(\d{5})(\d{0,4})/,'($1) $2-$3');
   el.value = v;
-  const d = el.value.replace(/\D/g,''), ok = d.length===11;
+  var d = el.value.replace(/\D/g,''), ok = d.length===11;
   el.classList.toggle('error', el.value.length>0 && !ok);
   document.getElementById('wpp-error').style.display = (el.value.length>0 && !ok) ? 'block' : 'none';
   checkContact();
 }
 function checkContact() {
-  const nome = document.getElementById('inp-nome').value.trim();
-  const d    = document.getElementById('inp-wpp').value.replace(/\D/g,'');
+  var nome = document.getElementById('inp-nome').value.trim();
+  var d    = document.getElementById('inp-wpp').value.replace(/\D/g,'');
   document.getElementById('btn-contact').disabled = !(nome && d.length===11);
 }
 
-const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-CONFIG.questions.forEach((q, qi) => {
-  const div = document.createElement('div');
+var ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+CONFIG.questions.forEach(function(q, qi) {
+  var div = document.createElement('div');
   div.className = 'screen'; div.id = 'sq'+qi;
-  const optsHtml = q.options.map((o,oi) => `
-    <button class="opt-btn${o.disqualify?' dq-option':''}" data-idx="${oi}" data-qi="${qi}" onclick="pickOpt(${qi},${oi},${q.multiSelect})">
-      <span class="opt-key">${ALPHA[oi]}</span><span>${o.text}</span>
-    </button>`).join('');
-  const back = qi===0 ? "goTo('s1',1)" : `goToQ(${qi-1})`;
-  const hint = q.multiSelect ? '<div class="multi-hint">Pode selecionar mais de uma</div>' : '';
-  div.innerHTML = `
-    <div class="q-title">${q.title} <span class="req">*</span></div>
-    ${hint}
-    <div class="opts" id="opts-${qi}">${optsHtml}</div>
-    <div class="btn-row">
-      <button class="btn-primary" id="btn-q${qi}" onclick="advanceQ(${qi})" disabled>Continuar →</button>
-      <button class="btn-back" onclick="${back}">← Voltar</button>
-      <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
-    </div>`;
+  var optsHtml = q.options.map(function(o,oi) {
+    return '<button class="opt-btn' + (o.disqualify?' dq-option':'') + '" data-idx="' + oi + '" data-qi="' + qi + '" onclick="pickOpt(' + qi + ',' + oi + ',' + q.multiSelect + ')">'
+      + '<span class="opt-key">' + ALPHA[oi] + '</span><span>' + o.text + '</span></button>';
+  }).join('');
+  var back = qi===0 ? "goTo('s1',1)" : 'goToQ('+(qi-1)+')';
+  var hint = q.multiSelect ? '<div class="multi-hint">Pode selecionar mais de uma</div>' : '';
+  div.innerHTML = '<div class="q-title">' + q.title + ' <span class="req">*</span></div>'
+    + hint
+    + '<div class="opts" id="opts-'+qi+'">' + optsHtml + '</div>'
+    + '<div class="btn-row">'
+    + '<button class="btn-primary" id="btn-q'+qi+'" onclick="advanceQ('+qi+')" disabled>Continuar →</button>'
+    + '<button class="btn-back" onclick="'+back+'">← Voltar</button>'
+    + '<div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>'
+    + '</div>';
   document.getElementById('questions-container').appendChild(div);
 });
 
-document.getElementById('cal-meeting-name').textContent = CONFIG.meetingName;
-document.getElementById('cal-meeting-dur').textContent  = CONFIG.meetingDuration;
-
-const STATE = {
+var STATE = {
   answers:{}, multiAnswers:{}, events:[], dqFromQ:0,
   selDay:null, selTime:null,
   calYear:new Date().getFullYear(), calMonth:new Date().getMonth()
 };
-const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const DAYS=['dom','seg','ter','qua','qui','sex','sáb'];
-const TIMES={0:[],1:['09:00','09:30','10:00','10:30','14:00','14:30','15:00'],2:['09:00','10:00','11:00','14:00','15:00','15:30'],3:['09:30','10:30','14:00','14:30','15:00','16:00'],4:['09:00','09:30','10:00','14:30','15:00'],5:['09:00','10:00','11:00'],6:[]};
 
-const TOTAL = 2 + CONFIG.questions.length + 2;
+var TOTAL = 2 + CONFIG.questions.length + 2;
+
 function setProg(step) {
-  const pct = Math.round((step/(TOTAL-1))*100);
+  var pct = Math.round((step/(TOTAL-1))*100);
   document.getElementById('prog-fill').style.width = pct+'%';
 }
-function hideAll() { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); }
+function hideAll() { document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');}); }
 function goTo(id,step) {
   hideAll();
   document.getElementById(id).classList.add('active');
@@ -576,41 +349,65 @@ function goTo(id,step) {
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function goToQ(qi)    { goTo('sq'+qi, 2+qi); }
-function goToCal()    { goTo('s-cal', 2+CONFIG.questions.length); renderCal(); }
-function goToConfirm(){ buildConfirm(); goTo('s-done', TOTAL-1); }
-function goToDQ()     { goTo('s-dq',100); document.getElementById('prog-fill').style.width='100%'; }
+function goToCal() {
+  goTo('s-cal', 2+CONFIG.questions.length);
+  var el = document.getElementById('calendly-embed');
+  el.innerHTML = '';
+  var nome  = document.getElementById('inp-nome').value || '';
+  var email = document.getElementById('inp-email').value || '';
+  var wpp   = document.getElementById('inp-wpp').value.replace(/\D/g,'') || '';
+  if (window.Calendly) {
+    Calendly.initInlineWidget({
+      url: CONFIG.calendlyUrl + '?hide_gdpr_banner=1',
+      parentElement: el,
+      prefill: { name: nome, email: email }
+    });
+  } else {
+    el.innerHTML = '<iframe src="' + CONFIG.calendlyUrl + '?hide_gdpr_banner=1&name=' + encodeURIComponent(nome) + '&email=' + encodeURIComponent(email) + '" width="100%" height="650" frameborder="0"></iframe>';
+  }
+  window.addEventListener('message', function onCalendly(e) {
+    if (e.data && e.data.event === 'calendly.event_scheduled') {
+      window.removeEventListener('message', onCalendly);
+      if (STATE.events.indexOf('LeadAgendado') === -1) STATE.events.push('LeadAgendado');
+      firePixel('LeadAgendado');
+      setTimeout(function() { buildConfirm(); goTo('s-done', TOTAL-1); }, 1500);
+    }
+  });
+}
+function goToConfirm() { buildConfirm(); goTo('s-done', TOTAL-1); }
+function goToDQ()      { goTo('s-dq',100); document.getElementById('prog-fill').style.width='100%'; }
 
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', function(e) {
   if(e.key!=='Enter') return;
-  const btn = document.querySelector('.screen.active .btn-primary:not(:disabled)');
+  var btn = document.querySelector('.screen.active .btn-primary:not(:disabled)');
   if(btn) btn.click();
 });
 
 function pickOpt(qi,oi,isMulti) {
-  const q=CONFIG.questions[qi], o=q.options[oi];
+  var q=CONFIG.questions[qi], o=q.options[oi];
   if(isMulti) {
-    const btn=document.querySelector(`#opts-${qi} [data-idx="${oi}"]`);
+    var btn=document.querySelector('#opts-'+qi+' [data-idx="'+oi+'"]');
     btn.classList.toggle('selected');
     if(!STATE.multiAnswers[qi]) STATE.multiAnswers[qi]={};
     if(btn.classList.contains('selected')) {
       STATE.multiAnswers[qi][oi]=o;
-      if(!STATE.events.includes(o.event)) STATE.events.push(o.event);
+      if(STATE.events.indexOf(o.event)===-1) STATE.events.push(o.event);
       firePixel(o.event);
     } else { delete STATE.multiAnswers[qi][oi]; }
-    const has=Object.keys(STATE.multiAnswers[qi]).length>0;
+    var has=Object.keys(STATE.multiAnswers[qi]).length>0;
     document.getElementById('btn-q'+qi).disabled=!has;
-    STATE.answers['q'+qi]={text:Object.values(STATE.multiAnswers[qi]).map(x=>x.text).join(', '),disqualify:false};
+    STATE.answers['q'+qi]={text:Object.values(STATE.multiAnswers[qi]).map(function(x){return x.text;}).join(', '),disqualify:false};
   } else {
-    document.querySelectorAll(`#opts-${qi} .opt-btn`).forEach(b=>b.classList.remove('selected'));
-    document.querySelector(`#opts-${qi} [data-idx="${oi}"]`).classList.add('selected');
-    STATE.answers['q'+qi]={qi,oi,text:o.text,event:o.event,disqualify:o.disqualify};
-    if(!STATE.events.includes(o.event)) STATE.events.push(o.event);
+    document.querySelectorAll('#opts-'+qi+' .opt-btn').forEach(function(b){b.classList.remove('selected');});
+    document.querySelector('#opts-'+qi+' [data-idx="'+oi+'"]').classList.add('selected');
+    STATE.answers['q'+qi]={qi:qi,oi:oi,text:o.text,event:o.event,disqualify:o.disqualify};
+    if(STATE.events.indexOf(o.event)===-1) STATE.events.push(o.event);
     firePixel(o.event);
     document.getElementById('btn-q'+qi).disabled=false;
     if(o.disqualify) {
       STATE.dqFromQ=qi;
-      setTimeout(()=>{
-        const nome=document.getElementById('inp-nome').value||'Doutora';
+      setTimeout(function(){
+        var nome=document.getElementById('inp-nome').value||'Doutora';
         document.getElementById('dq-title').textContent     = q.dqTitle||'Vai ser um prazer te ter conosco.';
         document.getElementById('dq-msg').textContent       = q.dqMsg||'Quando estiver no momento certo, o protocolo segue aqui.';
         document.getElementById('dq-avatar').textContent    = nome.charAt(0).toUpperCase();
@@ -623,100 +420,71 @@ function pickOpt(qi,oi,isMulti) {
 }
 
 function advanceQ(qi) {
-  const ans=STATE.answers['q'+qi];
+  var ans=STATE.answers['q'+qi];
   if(!ans) return;
   if(!CONFIG.questions[qi].multiSelect && ans.disqualify) return;
-  qi+1<CONFIG.questions.length ? goToQ(qi+1) : goToCal();
+  if(qi+1<CONFIG.questions.length) goToQ(qi+1); else goToCal();
 }
 function goBackDQ() {
-  const qi=STATE.dqFromQ;
-  document.querySelectorAll(`#opts-${qi} .opt-btn`).forEach(b=>b.classList.remove('selected'));
+  var qi=STATE.dqFromQ;
+  document.querySelectorAll('#opts-'+qi+' .opt-btn').forEach(function(b){b.classList.remove('selected');});
   document.getElementById('btn-q'+qi).disabled=true;
   delete STATE.answers['q'+qi];
   goToQ(qi);
 }
 function saveDQ() {
-  if(!STATE.events.includes('LeadNurture')) STATE.events.push('LeadNurture');
+  if(STATE.events.indexOf('LeadNurture')===-1) STATE.events.push('LeadNurture');
   firePixel('LeadNurture');
   document.getElementById('dq-fire').style.display='flex';
   saveToSupabase('disqualified');
 }
 
-function renderCal() {
-  const y=STATE.calYear,m=STATE.calMonth;
-  document.getElementById('cal-month-lbl').textContent=MONTHS[m]+' '+y;
-  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),today=new Date();
-  let html=DAYS.map(d=>`<div class="cal-day-lbl">${d}</div>`).join('');
-  for(let i=0;i<first;i++) html+='<div class="cal-day empty"></div>';
-  for(let d=1;d<=days;d++){
-    const dt=new Date(y,m,d),dow=dt.getDay();
-    const past=dt<new Date(today.getFullYear(),today.getMonth(),today.getDate());
-    const noS=(TIMES[dow]||[]).length===0;
-    const isT=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
-    const isSel=STATE.selDay===d&&STATE.calMonth===m&&STATE.calYear===y;
-    let cls='cal-day';
-    if(past||noS) cls+=' past'; if(isT) cls+=' today'; if(isSel) cls+=' selected-day';
-    html+=`<div class="${cls}"${(!past&&!noS)?` onclick="selectDay(${d})"`:''} >${d}</div>`;
-  }
-  document.getElementById('cal-grid').innerHTML=html;
-}
-function selectDay(d){
-  STATE.selDay=d; STATE.selTime=null; renderCal();
-  const dow=new Date(STATE.calYear,STATE.calMonth,d).getDay(),times=TIMES[dow]||[];
-  document.getElementById('times-lbl').textContent=d+' de '+MONTHS[STATE.calMonth];
-  document.getElementById('btn-cal').disabled=true;
-  document.getElementById('times-list').innerHTML=times.length
-    ? times.map(t=>`<div class="time-slot" onclick="selectTime('${t}')">${t}</div>`).join('')
-    : '<div class="no-times-msg">Nenhum horário<br>disponível</div>';
-}
-function selectTime(t){
-  STATE.selTime=t;
-  document.querySelectorAll('.time-slot').forEach(el=>el.classList.toggle('selected-time',el.textContent===t));
-  document.getElementById('btn-cal').disabled=false;
-  if(!STATE.events.includes('LeadAgendado')) STATE.events.push('LeadAgendado');
-  firePixel('LeadAgendado');
-}
-function changeMonth(dir){
-  STATE.calMonth+=dir;
-  if(STATE.calMonth>11){STATE.calMonth=0;STATE.calYear++;}
-  if(STATE.calMonth<0){STATE.calMonth=11;STATE.calYear--;}
-  STATE.selDay=null; STATE.selTime=null;
-  document.getElementById('times-lbl').textContent='Selecione uma data';
-  document.getElementById('times-list').innerHTML='<div class="no-times-msg">Selecione<br>uma data</div>';
-  document.getElementById('btn-cal').disabled=true;
-  renderCal();
-}
-
 function buildConfirm(){
-  const nome=document.getElementById('inp-nome').value;
-  const wpp=document.getElementById('inp-wpp').value.replace(/\D/g,'');
-  const email=document.getElementById('inp-email').value;
-  const date=STATE.selDay+' de '+MONTHS[STATE.calMonth]+' de '+STATE.calYear;
-  document.getElementById('conf-slot').innerHTML=`<div class="confirm-icon">✓</div><div><div class="confirm-main">${date} às ${STATE.selTime}</div><div class="confirm-sub">${CONFIG.meetingName} · ${CONFIG.meetingDuration}</div></div>`;
-  document.getElementById('conf-data').innerHTML=`<strong>${nome}</strong><br>WhatsApp: +55 ${wpp}${email?'<br>E-mail: '+email:''}`;
-  document.getElementById('conf-events').innerHTML=STATE.events.map(e=>`<span class="ev-tag">${e}</span>`).join('');
-  saveToSupabase('qualified'); fireWebhook('qualified');
-  if(CONFIG.successRedirect) setTimeout(()=>window.location.href=CONFIG.successRedirect,3000);
+  var nome  = document.getElementById('inp-nome').value;
+  var wpp   = document.getElementById('inp-wpp').value.replace(/\D/g,'');
+  var email = document.getElementById('inp-email').value;
+  document.getElementById('conf-slot').innerHTML='<div class="confirm-icon">✓</div><div><div class="confirm-main">Agendamento confirmado</div><div class="confirm-sub">'+CONFIG.meetingName+' · '+CONFIG.meetingDuration+'</div></div>';
+  document.getElementById('conf-data').innerHTML='<strong>'+nome+'</strong><br>WhatsApp: +55 '+wpp+(email?'<br>E-mail: '+email:'');
+  document.getElementById('conf-events').innerHTML=STATE.events.map(function(e){return '<span class="ev-tag">'+e+'</span>';}).join('');
+  saveToSupabase('qualified');
+  fireWebhook('qualified');
+  if(CONFIG.successRedirect) setTimeout(function(){window.location.href=CONFIG.successRedirect;},3000);
 }
 
 function buildPayload(status){
-  return {
-    nome:document.getElementById('inp-nome').value,
-    wpp:document.getElementById('inp-wpp').value.replace(/\D/g,''),
-    email:document.getElementById('inp-email').value,
-    status, eventos:STATE.events.join(', '),
-    agendado_em:STATE.selDay?STATE.selDay+'/'+(STATE.calMonth+1)+'/'+STATE.calYear:null,
-    horario_reuniao:STATE.selTime||null,
-    ...Object.fromEntries(Object.entries(STATE.answers).map(([k,v])=>[k,v.text]))
+  var base = {
+    nome:  document.getElementById('inp-nome').value,
+    wpp:   document.getElementById('inp-wpp').value.replace(/\D/g,''),
+    email: document.getElementById('inp-email').value,
+    status: status,
+    eventos: STATE.events.join(', '),
+    agendado_em: null,
+    horario_reuniao: null
   };
+  Object.keys(STATE.answers).forEach(function(k){ base[k]=STATE.answers[k].text; });
+  return base;
 }
+
 async function saveToSupabase(status){
   if(!CONFIG.supabaseUrl||!CONFIG.supabaseKey) return;
-  try { await fetch(CONFIG.supabaseUrl+'/rest/v1/leads',{method:'POST',headers:{'Content-Type':'application/json','apikey':CONFIG.supabaseKey,'Authorization':'Bearer '+CONFIG.supabaseKey,'Prefer':'return=minimal'},body:JSON.stringify(buildPayload(status))}); } catch(e){}
+  try {
+    await fetch(CONFIG.supabaseUrl+'/rest/v1/leads',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':CONFIG.supabaseKey,'Authorization':'Bearer '+CONFIG.supabaseKey,'Prefer':'return=minimal'},
+      body:JSON.stringify(buildPayload(status))
+    });
+  } catch(e){}
 }
+
 async function fireWebhook(status){
   if(!CONFIG.makeWebhook) return;
-  try { await fetch(CONFIG.makeWebhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(buildPayload(status))}); } catch(e){}
+  try {
+    await fetch(CONFIG.makeWebhook,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(buildPayload(status))
+    });
+  } catch(e){}
 }
 
 goTo('s0',0);
