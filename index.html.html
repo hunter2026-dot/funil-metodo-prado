@@ -704,16 +704,6 @@ function confirmBooking() {
     return '<span class="ev-tag">' + e + '</span>';
   }).join('');
 
-  // Google Calendar link
-  var dtStart = buildGCalDate(STATE.calY, STATE.calM, STATE.selDay, timeStr, 0);
-  var dtEnd   = buildGCalDate(STATE.calY, STATE.calM, STATE.selDay, timeStr, 30);
-  var gcalUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
-    + '&text=' + encodeURIComponent(CONFIG.meetingName + ' — ' + nome)
-    + '&dates=' + dtStart + '/' + dtEnd
-    + '&details=' + encodeURIComponent('Reunião agendada via Grupo Hunter\nNome: ' + nome + '\nWhatsApp: +55' + wpp + (email ? '\nEmail: ' + email : ''))
-    + '&add=' + encodeURIComponent(CONFIG.googleCalEmail);
-  document.getElementById('gcal-link').href = gcalUrl;
-
   goTo('s-done', TOTAL - 1);
   saveToSupabase('qualified');
   fireWebhook('qualified');
