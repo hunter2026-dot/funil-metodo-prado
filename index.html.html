@@ -337,7 +337,7 @@ html, body {
       <input class="field-inp" id="inp-nome" type="text" placeholder="Seu nome completo" oninput="checkNome()">
     </div>
     <div class="btn-row">
-      <button class="btn-primary" id="btn-nome" onclick="goTo('s1b',1.3)" disabled>Continuar →</button>
+      <button class="btn-primary" id="btn-nome" onclick="firePixel('ViewContent'); goTo('s1b',1.3)" disabled>Continuar →</button>
       <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
     </div>
   </div>
@@ -353,7 +353,7 @@ html, body {
       <span class="wpp-error" id="wpp-error">Número inválido — DDD + 9 dígitos</span>
     </div>
     <div class="btn-row">
-      <button class="btn-primary" id="btn-wpp" onclick="goTo('s1c',1.6)" disabled>Continuar →</button>
+      <button class="btn-primary" id="btn-wpp" onclick="fbq && fbq('track','Lead'); goTo('s1c',1.6)" disabled>Continuar →</button>
       <button class="btn-back" onclick="goTo('s1',1)">← Voltar</button>
       <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
     </div>
@@ -539,6 +539,7 @@ function goTo(id, step) {
 }
 function goToQ(qi) { goTo('sq' + qi, 2 + qi); }
 function goToCal() {
+  if (window.fbq) fbq('track', 'InitiateCheckout');
   goTo('s-cal', 2 + CONFIG.questions.length);
   // Populate prefill
   var nome  = document.getElementById('inp-nome').value;
@@ -599,6 +600,9 @@ function pickOpt(qi, oi, isMulti) {
         document.getElementById('dq-avatar').textContent  = nome.charAt(0).toUpperCase();
         document.getElementById('dq-name').textContent    = nome;
         document.getElementById('dq-wpp-lbl').textContent = 'WhatsApp: ' + (document.getElementById('inp-wpp').value || '—');
+        var dqEvt = 'LeadDesqualificado_P' + (qi + 1);
+        firePixel(dqEvt);
+        if (window.fbq) fbq('track', 'Lead', {content_name: dqEvt});
         goToDQ();
         fireWebhook('disqualified');
       }, 600);
@@ -674,6 +678,8 @@ function selTime(t) {
   document.getElementById('btn-cal').disabled = false;
   if (STATE.events.indexOf('LeadAgendado') === -1) STATE.events.push('LeadAgendado');
   firePixel('LeadAgendado');
+  if (window.fbq) fbq('track', 'Schedule');
+  if (window.fbq) { fbq('track', 'Schedule'); }
 }
 
 function chgMonth(dir) {
