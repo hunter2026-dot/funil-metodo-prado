@@ -353,7 +353,7 @@ html, body {
       <span class="wpp-error" id="wpp-error">Número inválido — DDD + 9 dígitos</span>
     </div>
     <div class="btn-row">
-      <button class="btn-primary" id="btn-wpp" onclick="fbq && fbq('track','Lead'); goTo('s1c',1.6); savePartialLead();" disabled>Continuar →</button>
+      <button class="btn-primary" id="btn-wpp" onclick="fbq && fbq('track','Lead'); goTo('s1c',1.6); try{savePartialLead();}catch(e){}" disabled>Continuar →</button>
       <button class="btn-back" onclick="goTo('s1',1)">← Voltar</button>
       <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
     </div>
@@ -768,14 +768,16 @@ function buildPayload(status) {
 }
 
 function savePartialLead() {
-  var wpp = document.getElementById('inp-wpp').value.replace(/\D/g, '');
-  var nome = document.getElementById('inp-nome').value;
-  if (!wpp || !CONFIG.supabaseUrl) return;
-  fetch(CONFIG.supabaseUrl + '/rest/v1/leads', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'resolution=merge-duplicates,return=minimal', 'on-conflict': 'wpp' },
-    body: JSON.stringify({ nome: nome, wpp: wpp, status: 'parcial', eventos: '', agendado_em: null, horario_reuniao: null, email: '' })
-  }).catch(function(){});
+  try {
+    var wpp  = document.getElementById('inp-wpp').value.replace(/\D/g, '');
+    var nome = document.getElementById('inp-nome').value;
+    if (!wpp || !CONFIG.supabaseUrl) return;
+    fetch(CONFIG.supabaseUrl + '/rest/v1/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ nome: nome, wpp: wpp, status: 'parcial', eventos: '', agendado_em: null, horario_reuniao: null, email: '' })
+    }).catch(function(){});
+  } catch(e) {}
 }
 
 async function saveToSupabase(status) {
