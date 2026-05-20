@@ -632,7 +632,28 @@ function saveDQ() {
 // ——— Calendar ———
 var MONTHS    = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 var DAYS      = ['dom','seg','ter','qua','qui','sex','sáb'];
-var TIMES_DOW = { 0:[], 1:['09:00','09:30','10:00','10:30','14:00','14:30','15:00'], 2:['09:00','10:00','11:00','14:00','15:00','15:30'], 3:['09:30','10:30','14:00','14:30','15:00','16:00'], 4:['09:00','09:30','10:00','14:30','15:00'], 5:['09:00','10:00','11:00'], 6:[] };
+var ALL_TIMES = ['10:00','11:00','14:00','15:00','17:00','19:00'];
+// Returns available times for a given Date object
+function getTimesForDate(dt) {
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var d = new Date(dt);
+  d.setHours(0,0,0,0);
+  // Get next 3 business days from today
+  var businessDays = [];
+  var cursor = new Date(today);
+  while (businessDays.length < 3) {
+    var dow = cursor.getDay();
+    if (dow !== 0 && dow !== 6) businessDays.push(cursor.toDateString());
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  // If not in next 3 business days, no slots
+  if (businessDays.indexOf(d.toDateString()) === -1) return [];
+  // Rotate blocked slot by day index (0,1,2)
+  var dayIdx = businessDays.indexOf(d.toDateString());
+  var blockedIdx = [1, 5, 2][dayIdx]; // block 11:00, 19:00, 14:00
+  return ALL_TIMES.filter(function(t, i) { return i !== blockedIdx; });
+}
 
 function renderCal() {
   var y = STATE.calY, m = STATE.calM, today = new Date();
@@ -643,7 +664,7 @@ function renderCal() {
   for (var d = 1; d <= days; d++) {
     var dt  = new Date(y, m, d), dow = dt.getDay();
     var past = dt < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    var noSlots = (TIMES_DOW[dow] || []).length === 0;
+    var noSlots = getTimesForDate(dt).length === 0;
     var isToday = d === today.getDate() && m === today.getMonth() && y === today.getFullYear();
     var isSel   = STATE.selDay === d && STATE.calM === m && STATE.calY === y;
     var cls = 'cal-day';
@@ -659,8 +680,8 @@ function renderCal() {
 function selDay(d) {
   STATE.selDay = d; STATE.selTime = null;
   renderCal();
-  var dow   = new Date(STATE.calY, STATE.calM, d).getDay();
-  var times = TIMES_DOW[dow] || [];
+  var dt2   = new Date(STATE.calY, STATE.calM, d);
+  var times = getTimesForDate(dt2);
   document.getElementById('times-label').textContent = d + ' de ' + MONTHS[STATE.calM];
   document.getElementById('btn-cal').disabled = true;
   if (!times.length) {
