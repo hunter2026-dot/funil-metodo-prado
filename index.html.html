@@ -784,22 +784,20 @@ async function saveToSupabase(status) {
   if (!CONFIG.supabaseUrl || !CONFIG.supabaseKey) return;
   var wpp = document.getElementById('inp-wpp').value.replace(/\D/g, '');
   try {
-    // Try upsert by wpp first
-    await fetch(CONFIG.supabaseUrl + '/rest/v1/leads?wpp=eq.' + wpp, {
+    var patchRes = await fetch(CONFIG.supabaseUrl + '/rest/v1/leads?wpp=eq.' + wpp, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'return=minimal' },
+      headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'count=exact,return=minimal' },
       body: JSON.stringify(buildPayload(status))
     });
-  } catch(e) {
-    // Fallback to insert
-    try {
+    var range = patchRes.headers.get('content-range') || '';
+    if (range === '*/0' || range === '') {
       await fetch(CONFIG.supabaseUrl + '/rest/v1/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'return=minimal' },
         body: JSON.stringify(buildPayload(status))
       });
-    } catch(e2) {}
-  }
+    }
+  } catch(e) { console.warn('Supabase:', e); }
 }
 
 async function fireWebhook(status) {
