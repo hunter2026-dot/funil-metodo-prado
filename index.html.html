@@ -588,6 +588,11 @@ function pickOpt(qi, oi, isMulti) {
     if (STATE.events.indexOf(o.event) === -1) STATE.events.push(o.event);
     firePixel(o.event);
     document.getElementById('btn-q' + qi).disabled = false;
+    // Save answer immediately to Supabase
+    var qData = { status: 'parcial' };
+    qData['q' + qi] = o.text;
+    qData.eventos = STATE.events.join(', ');
+    supaSave(qData);
     if (!o.disqualify) {
       setTimeout(function() { advanceQ(qi); }, 300);
     }
@@ -769,35 +774,34 @@ function buildPayload(status) {
 
 function savePartialLead() {
   try {
-    var wpp  = document.getElementById('inp-wpp').value.replace(/\D/g, '');
+    var wpp  = document.getElementById('inp-wpp').value.replace(/\D/g,'');
     var nome = document.getElementById('inp-nome').value;
     if (!wpp || !CONFIG.supabaseUrl) return;
-    fetch(CONFIG.supabaseUrl + '/rest/v1/leads', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ nome: nome, wpp: wpp, status: 'parcial', eventos: '', agendado_em: null, horario_reuniao: null, email: '' })
-    }).catch(function(){});
+    supaSave({ nome: nome, wpp: wpp, status: 'parcial' });
   } catch(e) {}
 }
 
-async function saveToSupabase(status) {
+function supaSave(data) {
   if (!CONFIG.supabaseUrl || !CONFIG.supabaseKey) return;
-  var wpp = document.getElementById('inp-wpp').value.replace(/\D/g, '');
-  try {
-    var patchRes = await fetch(CONFIG.supabaseUrl + '/rest/v1/leads?wpp=eq.' + wpp, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'count=exact,return=minimal' },
-      body: JSON.stringify(buildPayload(status))
+  var wpp = data.wpp || document.getElementById('inp-wpp').value.replace(/\D/g,'');
+  // Always upsert — insert or update by wpp
+  fetch(CONFIG.supabaseUrl + '/rest/v1/leads?wpp=eq.' + wpp, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'return=minimal' },
+    body: JSON.stringify(data)
+  }).then(function(r) {
+    if (r.status === 200 || r.status === 204) return; // updated OK
+    // No row found — insert
+    return fetch(CONFIG.supabaseUrl + '/rest/v1/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'return=minimal' },
+      body: JSON.stringify(data)
     });
-    var range = patchRes.headers.get('content-range') || '';
-    if (range === '*/0' || range === '') {
-      await fetch(CONFIG.supabaseUrl + '/rest/v1/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'return=minimal' },
-        body: JSON.stringify(buildPayload(status))
-      });
-    }
-  } catch(e) { console.warn('Supabase:', e); }
+  }).catch(function(){});
+}
+
+async function saveToSupabase(status) {
+  supaSave(buildPayload(status));
 }
 
 async function fireWebhook(status) {
