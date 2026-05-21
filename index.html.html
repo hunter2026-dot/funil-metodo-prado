@@ -593,7 +593,7 @@ function pickOpt(qi, oi, isMulti) {
     qData['q' + qi] = o.text;
     qData.eventos = STATE.events.join(', ');
     supaSave(qData);
-    // Fire Lead pixel only after faturamento (q2) if qualified
+    // Fire Lead pixel only after faturamento (q3) if qualified
     if (qi === 2 && !o.disqualify && window.fbq) fbq('track', 'Lead');
     if (!o.disqualify) {
       setTimeout(function() { advanceQ(qi); }, 300);
