@@ -353,7 +353,7 @@ html, body {
       <span class="wpp-error" id="wpp-error">Número inválido — DDD + 9 dígitos</span>
     </div>
     <div class="btn-row">
-      <button class="btn-primary" id="btn-wpp" onclick="fbq && fbq('track','Lead'); goTo('s1c',1.6); try{savePartialLead();}catch(e){}" disabled>Continuar →</button>
+      <button class="btn-primary" id="btn-wpp" onclick="goTo('s1c',1.6); try{savePartialLead();}catch(e){}" disabled>Continuar →</button>
       <button class="btn-back" onclick="goTo('s1',1)">← Voltar</button>
       <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
     </div>
@@ -593,6 +593,8 @@ function pickOpt(qi, oi, isMulti) {
     qData['q' + qi] = o.text;
     qData.eventos = STATE.events.join(', ');
     supaSave(qData);
+    // Fire Lead pixel only after faturamento (q2) if qualified
+    if (qi === 2 && !o.disqualify && window.fbq) fbq('track', 'Lead');
     if (!o.disqualify) {
       setTimeout(function() { advanceQ(qi); }, 300);
     }
@@ -607,7 +609,7 @@ function pickOpt(qi, oi, isMulti) {
         document.getElementById('dq-wpp-lbl').textContent = 'WhatsApp: ' + (document.getElementById('inp-wpp').value || '—');
         var dqEvt = 'LeadDesqualificado_P' + (qi + 1);
         firePixel(dqEvt);
-        if (window.fbq) fbq('track', 'Lead', {content_name: dqEvt});
+        if (window.fbq && qi === 2) fbq('track', 'Lead', {content_name: dqEvt});
         goToDQ();
         fireWebhook('disqualified');
       }, 600);
@@ -772,35 +774,39 @@ function buildPayload(status) {
   return base;
 }
 
-function savePartialLead() {
-  try {
-    var wpp  = document.getElementById('inp-wpp').value.replace(/\D/g,'');
-    var nome = document.getElementById('inp-nome').value;
-    if (!wpp || !CONFIG.supabaseUrl) return;
-    supaSave({ nome: nome, wpp: wpp, status: 'parcial' });
-  } catch(e) {}
+// ——— Supabase save — upsert by wpp ———
+function getWpp() {
+  return document.getElementById('inp-wpp').value.replace(/\D/g,'');
 }
 
 function supaSave(data) {
   if (!CONFIG.supabaseUrl || !CONFIG.supabaseKey) return;
-  var wpp = data.wpp || document.getElementById('inp-wpp').value.replace(/\D/g,'');
-  // Always upsert — insert or update by wpp
-  fetch(CONFIG.supabaseUrl + '/rest/v1/leads?wpp=eq.' + wpp, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'return=minimal' },
-    body: JSON.stringify(data)
-  }).then(function(r) {
-    if (r.status === 200 || r.status === 204) return; // updated OK
-    // No row found — insert
-    return fetch(CONFIG.supabaseUrl + '/rest/v1/leads', {
+  if (!data.wpp) data.wpp = getWpp();
+  if (!data.wpp) return;
+  // Upsert: POST with on_conflict=wpp merges into existing row
+  fetch(
+    CONFIG.supabaseUrl + '/rest/v1/leads?on_conflict=wpp',
+    {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'apikey': CONFIG.supabaseKey, 'Authorization': 'Bearer ' + CONFIG.supabaseKey, 'Prefer': 'return=minimal' },
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': CONFIG.supabaseKey,
+        'Authorization': 'Bearer ' + CONFIG.supabaseKey,
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
       body: JSON.stringify(data)
-    });
-  }).catch(function(){});
+    }
+  ).catch(function(e){ console.warn('supaSave error:', e); });
 }
 
-async function saveToSupabase(status) {
+function savePartialLead() {
+  var wpp  = getWpp();
+  var nome = document.getElementById('inp-nome').value;
+  if (!wpp) return;
+  supaSave({ wpp: wpp, nome: nome, status: 'parcial', email: '', eventos: '' });
+}
+
+function saveToSupabase(status) {
   supaSave(buildPayload(status));
 }
 
