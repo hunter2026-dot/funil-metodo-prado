@@ -609,7 +609,7 @@ function pickOpt(qi, oi, isMulti) {
         document.getElementById('dq-wpp-lbl').textContent = 'WhatsApp: ' + (document.getElementById('inp-wpp').value || '—');
         var dqEvt = 'LeadDesqualificado_P' + (qi + 1);
         firePixel(dqEvt);
-        if (window.fbq && qi === 2) fbq('track', 'Lead', {content_name: dqEvt});
+        if (window.fbq && qi === 2) fbq('track', 'Desqualificado', {content_name: dqEvt});
         goToDQ();
         fireWebhook('disqualified');
       }, 600);
