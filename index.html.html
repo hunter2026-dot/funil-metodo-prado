@@ -337,7 +337,7 @@ html, body {
       <input class="field-inp" id="inp-nome" type="text" placeholder="Seu nome completo" oninput="checkNome()">
     </div>
     <div class="btn-row">
-      <button class="btn-primary" id="btn-nome" onclick="firePixel('ViewContent'); goTo('s1b',1.3)" disabled>Continuar →</button>
+      <button class="btn-primary" id="btn-nome" onclick="goTo('s1b',1.3); firePixel('ViewContent');" disabled>Continuar →</button>
       <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
     </div>
   </div>
@@ -539,7 +539,7 @@ function goTo(id, step) {
 }
 function goToQ(qi) { goTo('sq' + qi, 2 + qi); }
 function goToCal() {
-  if (window.fbq) fbq('track', 'InitiateCheckout');
+  if (window.fbq) fbq('trackCustom', 'ICPHunter');
   goTo('s-cal', 2 + CONFIG.questions.length);
   // Populate prefill
   var nome  = document.getElementById('inp-nome').value;
@@ -593,8 +593,14 @@ function pickOpt(qi, oi, isMulti) {
     qData['q' + qi] = o.text;
     qData.eventos = STATE.events.join(', ');
     supaSave(qData);
-    // Fire Lead pixel only after faturamento (q3) if qualified
-    if (qi === 2 && !o.disqualify && window.fbq) fbq('track', 'Lead');
+    // Fire Lead ONLY for faturamento (q2) qualified answers
+    if (qi === 2 && !o.disqualify && window.fbq) {
+      fbq('track', 'Lead');
+    }
+    // Fire Desqualificado for faturamento (q2) disqualified
+    if (qi === 2 && o.disqualify && window.fbq) {
+      fbq('trackCustom', 'Desqualificado');
+    }
     if (!o.disqualify) {
       setTimeout(function() { advanceQ(qi); }, 300);
     }
@@ -609,7 +615,7 @@ function pickOpt(qi, oi, isMulti) {
         document.getElementById('dq-wpp-lbl').textContent = 'WhatsApp: ' + (document.getElementById('inp-wpp').value || '—');
         var dqEvt = 'LeadDesqualificado_P' + (qi + 1);
         firePixel(dqEvt);
-        if (window.fbq && qi === 2) fbq('track', 'Desqualificado', {content_name: dqEvt});
+        // DQ event already handled per-question above
         goToDQ();
         fireWebhook('disqualified');
       }, 600);
