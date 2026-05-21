@@ -710,9 +710,7 @@ function selTime(t) {
   STATE.selTime = t;
   document.querySelectorAll('.time-btn').forEach(function(b) { b.classList.toggle('sel-time', b.textContent === t); });
   document.getElementById('btn-cal').disabled = false;
-  if (STATE.events.indexOf('LeadAgendado') === -1) STATE.events.push('LeadAgendado');
-  firePixel('LeadAgendado');
-  if (window.fbq) fbq('track', 'Schedule');
+  // LeadAgendado and Schedule fire only on confirmBooking
   if (window.fbq) { fbq('track', 'Schedule'); }
 }
 
@@ -729,6 +727,10 @@ function chgMonth(dir) {
 
 // ——— Confirm booking ———
 function confirmBooking() {
+  // Fire conversion events only here — after day + time + button confirmed
+  if (STATE.events.indexOf('LeadAgendado') === -1) STATE.events.push('LeadAgendado');
+  firePixel('LeadAgendado');
+  if (window.fbq) fbq('track', 'Schedule');
   var nome  = document.getElementById('inp-nome').value;
   var wpp   = document.getElementById('inp-wpp').value.replace(/\D/g, '');
   var email = document.getElementById('inp-email').value;
