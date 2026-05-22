@@ -353,7 +353,7 @@ html, body {
       <span class="wpp-error" id="wpp-error">Número inválido — DDD + 9 dígitos</span>
     </div>
     <div class="btn-row">
-      <button class="btn-primary" id="btn-wpp" onclick="goTo('s1c',1.6); try{savePartialLead();}catch(e){}" disabled>Continuar →</button>
+      <button class="btn-primary" id="btn-wpp" onclick="if(window.fbq)fbq('track','Lead'); goTo('s1c',1.6); try{savePartialLead();}catch(e){}" disabled>Continuar →</button>
       <button class="btn-back" onclick="goTo('s1',1)">← Voltar</button>
       <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
     </div>
@@ -593,13 +593,12 @@ function pickOpt(qi, oi, isMulti) {
     qData['q' + qi] = o.text;
     qData.eventos = STATE.events.join(', ');
     supaSave(qData);
-    // Fire Lead ONLY for faturamento (q2) qualified answers
+    // Faturamento events (q2)
     if (qi === 2 && !o.disqualify && window.fbq) {
-      fbq('track', 'Lead');
+      fbq('trackCustom', 'ICP');
     }
-    // Fire Desqualificado for faturamento (q2) disqualified
     if (qi === 2 && o.disqualify && window.fbq) {
-      fbq('trackCustom', 'Desqualificado');
+      fbq('trackCustom', 'ICPminimo');
     }
     if (!o.disqualify) {
       setTimeout(function() { advanceQ(qi); }, 300);
