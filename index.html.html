@@ -14,12 +14,12 @@ const CONFIG = {
   meetingName:  "Diagnóstico Estratégico",
   meetingDuration: "30 minutos",
   googleCalEmail: "vinicius@huntergrowth.com.br",
-  headline:    "Doutora, <strong>feche de 3 a 10 novos Planos de Tratamento</strong> todos os meses, sem depender de agência de tráfego.",
+  headline:    "Doutora, <strong>feche de 3 a 10 protocolos com NOVOS PACIENTES</strong> todos os meses, sem depender de agência de tráfego.",
   bullets: [
-    { icon: "✗", color: "#D93025", text: "Chega de curiosos que perguntam “Preço?” e somem" },
-    { icon: "↑", color: "#1B6B35", text: "Pacientes A+ para acompanhamento premium" },
-    { icon: "✓", color: "#1B6B35", text: "Feche novos protocolos de forma elegante" },
-    { icon: "✓", color: "#1B6B35", text: "Previsibilidade em um modelo de clínica sólido" }
+    { icon: "✗", color: "#D93025", text: "Chega de lotar WhatsApp com curiosos perguntando \"Preço?\" e sumindo" },
+    { icon: "↑", color: "#1B6B35", text: "Novos pacientes A+ chegando por valor e não por preço" },
+    { icon: "✓", color: "#1B6B35", text: "Feche Planos de Tratamento High Ticket" },
+    { icon: "✓", color: "#1B6B35", text: "Previsibilidade e um modelo de clínica de alto valor" }
   ],
   disclaimer: "Exclusivo para Doutoras que sabem que podem vender mais e melhor, sem transformar a clínica em um caos.",
   ctaLabel: "QUERO MULTIPLICAR MEU FATURAMENTO",
@@ -51,26 +51,24 @@ const CONFIG = {
     },
     {
       id: "q3", name: "Faturamento",
-      title: "Quanto sua clínica fatura por mês hoje?",
+      title: "Qual o faturamento médio da sua clínica?",
       multiSelect: false,
-      dqTitle: "Vai ser um prazer te ter conosco.",
-      dqMsg: "O protocolo foi desenhado para clínicas que já têm base de pacientes e querem multiplicar. Quando chegar lá, me chama.",
+      dqTitle: "", dqMsg: "",
       options: [
-        { text: "Menos de R$15.000/mês",          event: "FatPequeno", disqualify: true  },
-        { text: "Entre R$15.000 e R$40.000/mês",  event: "FatMedio",   disqualify: false },
-        { text: "Entre R$40.000 e R$100.000/mês", event: "FatBom",     disqualify: false },
-        { text: "Acima de R$100.000/mês",          event: "FatAlto",    disqualify: false }
+        { text: "Acima de R$100.000/mês",          event: "FatAlto",    disqualify: false, caminhoB: false },
+        { text: "Entre R$40.000 e R$100.000/mês",  event: "FatBom",     disqualify: false, caminhoB: false },
+        { text: "Entre R$15.000 e R$40.000/mês",   event: "FatMedio",   disqualify: false, caminhoB: false },
+        { text: "Menos de R$15.000/mês",           event: "FatPequeno", disqualify: false, caminhoB: true  }
       ]
     },
     {
-      id: "q4", name: "Captação",
-      title: "Como você atrai novos pacientes hoje?",
-      multiSelect: true, dqTitle: "", dqMsg: "",
+      id: "q4", name: "Prioridade",
+      title: "Qual a prioridade máxima da sua clínica hoje?",
+      multiSelect: false, dqTitle: "", dqMsg: "",
       options: [
-        { text: "Só indicação, sem nada ativo",     event: "CapIndicacao", disqualify: false },
-        { text: "Já fiz ou faço tráfego pago",      event: "CapTrafego",   disqualify: false },
-        { text: "Prospecção ativa",                 event: "CapAtivo",     disqualify: false },
-        { text: "Já tenho processo, quero escalar", event: "CapEscala",    disqualify: false }
+        { text: "Trazer volume de pacientes de alto padrão (A e B)", event: "PrioVolume",    disqualify: false },
+        { text: "Fechar mais pacientes que já tenho",                event: "PrioFechamento", disqualify: false },
+        { text: "Treinar meu time comercial",                        event: "PrioTime",       disqualify: false }
       ]
     },
     {
@@ -521,6 +519,7 @@ CONFIG.questions.forEach(function(q, qi) {
 // ——— State ———
 var STATE = {
   answers: {}, multiAnswers: {}, events: [], dqFromQ: 0,
+  caminhoB: false,
   selDay: null, selTime: null,
   calY: new Date().getFullYear(), calM: new Date().getMonth()
 };
@@ -539,7 +538,7 @@ function goTo(id, step) {
 }
 function goToQ(qi) { goTo('sq' + qi, 2 + qi); }
 function goToCal() {
-  if (window.fbq) fbq('trackCustom', 'ICPHunter');
+  if (!STATE.caminhoB && window.fbq) fbq('trackCustom', 'ICPHunter');
   goTo('s-cal', 2 + CONFIG.questions.length);
   // Populate prefill
   var nome  = document.getElementById('inp-nome').value;
@@ -588,16 +587,19 @@ function pickOpt(qi, oi, isMulti) {
     if (STATE.events.indexOf(o.event) === -1) STATE.events.push(o.event);
     firePixel(o.event);
     document.getElementById('btn-q' + qi).disabled = false;
+    // Detect caminho B on faturamento (q2)
+    if (qi === 2 && o.caminhoB) STATE.caminhoB = true;
+    if (qi === 2 && !o.caminhoB) STATE.caminhoB = false;
     // Save answer immediately to Supabase
     var qData = { status: 'parcial' };
     qData['q' + qi] = o.text;
     qData.eventos = STATE.events.join(', ');
     supaSave(qData);
     // Faturamento events (q2)
-    if (qi === 2 && !o.disqualify && window.fbq) {
+    if (qi === 2 && !o.caminhoB && window.fbq) {
       fbq('trackCustom', 'ICP');
     }
-    if (qi === 2 && o.disqualify && window.fbq) {
+    if (qi === 2 && o.caminhoB && window.fbq) {
       fbq('trackCustom', 'ICPminimo');
     }
     if (!o.disqualify) {
@@ -726,10 +728,14 @@ function chgMonth(dir) {
 
 // ——— Confirm booking ———
 function confirmBooking() {
-  // Fire conversion events only here — after day + time + button confirmed
-  if (STATE.events.indexOf('LeadAgendado') === -1) STATE.events.push('LeadAgendado');
-  firePixel('LeadAgendado');
-  if (window.fbq) fbq('track', 'Schedule');
+  // Fire conversion events — only for Caminho A
+  if (!STATE.caminhoB) {
+    if (STATE.events.indexOf('LeadAgendado') === -1) STATE.events.push('LeadAgendado');
+    firePixel('LeadAgendado');
+    if (window.fbq) fbq('track', 'Schedule');
+  } else {
+    firePixel('AgendadoB');
+  }
   var nome  = document.getElementById('inp-nome').value;
   var wpp   = document.getElementById('inp-wpp').value.replace(/\D/g, '');
   var email = document.getElementById('inp-email').value;
@@ -768,11 +774,12 @@ function buildGCalDate(y, m, d, timeStr, addMinutes) {
 
 // ——— Payload / save ———
 function buildPayload(status) {
+  var finalStatus = (status === 'qualified' && STATE.caminhoB) ? 'qualified_b' : status;
   var base = {
     nome:            document.getElementById('inp-nome').value,
     wpp:             document.getElementById('inp-wpp').value.replace(/\D/g, ''),
     email:           document.getElementById('inp-email').value,
-    status:          status,
+    status:          finalStatus,
     eventos:         STATE.events.join(', '),
     agendado_em:     STATE.selDay ? STATE.calY + '-' + (STATE.calM + 1 < 10 ? '0' : '') + (STATE.calM + 1) + '-' + (STATE.selDay < 10 ? '0' : '') + STATE.selDay : null,
     horario_reuniao: STATE.selTime || null
