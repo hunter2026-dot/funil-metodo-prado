@@ -14,7 +14,7 @@ const CONFIG = {
   meetingName:  "Diagnóstico Estratégico",
   meetingDuration: "30 minutos",
   googleCalEmail: "vinicius@huntergrowth.com.br",
-  headline:    "Doutora, <strong>feche de 3 a 10 protocolos com NOVOS PACIENTES</strong> todos os meses, sem depender de agência de tráfego.",
+  headline:    "Doutora, <strong>feche de 3 a 10 novos Planos de Tratamento</strong> todos os meses, sem depender de agência de tráfego.",
   bullets: [
     { icon: "✗", color: "#D93025", text: "Chega de lotar WhatsApp com curiosos perguntando \"Preço?\" e sumindo" },
     { icon: "↑", color: "#1B6B35", text: "Novos pacientes A+ chegando por valor e não por preço" },
@@ -38,15 +38,14 @@ const CONFIG = {
       ]
     },
     {
-      id: "q2", name: "Especialidade",
-      title: "Qual a sua especialidade hoje?",
-      multiSelect: false, dqTitle: "", dqMsg: "",
+      id: "q2", name: "Prioridade",
+      title: "Qual a sua prioridade máxima hoje? Pode marcar mais de uma",
+      multiSelect: true, dqTitle: "", dqMsg: "",
       options: [
-        { text: "Harmonizadora",             event: "SegHarmonizadora", disqualify: false },
-        { text: "Nutróloga / Emagrecimento", event: "SegNutrologa",     disqualify: false },
-        { text: "Implantodontista",          event: "SegImplanto",      disqualify: false },
-        { text: "Lentes e facetas",          event: "SegLentes",        disqualify: false },
-        { text: "Nutricionista",             event: "SegNutri",         disqualify: false }
+        { text: "Trazer volume de pacientes de alto padrão (A e B)", event: "PrioVolume",    disqualify: false },
+        { text: "Fechar mais pacientes que já tenho",                event: "PrioFechamento", disqualify: false },
+        { text: "Fechar protocolos mais caros",                      event: "PrioProtocolo",  disqualify: false },
+        { text: "Treinar meu time comercial",                        event: "PrioTime",       disqualify: false }
       ]
     },
     {
@@ -62,14 +61,10 @@ const CONFIG = {
       ]
     },
     {
-      id: "q4", name: "Prioridade",
-      title: "Qual a prioridade máxima da sua clínica hoje?",
-      multiSelect: false, dqTitle: "", dqMsg: "",
-      options: [
-        { text: "Trazer volume de pacientes de alto padrão (A e B)", event: "PrioVolume",    disqualify: false },
-        { text: "Fechar mais pacientes que já tenho",                event: "PrioFechamento", disqualify: false },
-        { text: "Treinar meu time comercial",                        event: "PrioTime",       disqualify: false }
-      ]
+      id: "q4", name: "Instagram",
+      title: "Qual o seu @ no Instagram?",
+      multiSelect: false, isText: true, dqTitle: "", dqMsg: "",
+      options: []
     },
     {
       id: "q5", name: "Comprometimento",
@@ -335,7 +330,7 @@ html, body {
       <input class="field-inp" id="inp-nome" type="text" placeholder="Seu nome completo" oninput="checkNome()">
     </div>
     <div class="btn-row">
-      <button class="btn-primary" id="btn-nome" onclick="goTo('s1b',1.3); firePixel('ViewContent');" disabled>Continuar →</button>
+      <button class="btn-primary" id="btn-nome" onclick="firePixel('ViewContent'); goTo('s1b',1.3);" disabled>Continuar →</button>
       <div class="enter-hint">pressione <kbd>Enter ↵</kbd></div>
     </div>
   </div>
@@ -497,17 +492,22 @@ var ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 CONFIG.questions.forEach(function(q, qi) {
   var div = document.createElement('div');
   div.className = 'screen'; div.id = 'sq' + qi;
-  var optsHtml = q.options.map(function(o, oi) {
-    return '<button class="opt-btn' + (o.disqualify ? ' dq-option' : '') + '"'
-      + ' data-idx="' + oi + '" onclick="pickOpt(' + qi + ',' + oi + ',' + q.multiSelect + ')">'
-      + '<span class="opt-key">' + ALPHA[oi] + '</span><span>' + o.text + '</span></button>';
-  }).join('');
   var backFn  = qi === 0 ? "goTo('s1',1)" : 'goToQ(' + (qi - 1) + ')';
   var hint    = q.multiSelect ? '<div class="multi-hint">☑ Pode selecionar mais de uma</div>' : '';
+  var bodyHtml;
+  if (q.isText) {
+    bodyHtml = '<input class="field-inp" id="txt-q' + qi + '" type="text" placeholder="@seuinstagram" oninput="checkTxt(' + qi + ')" style="font-size:18px;padding:14px 0;border:none;border-bottom:2.5px solid #D4D4D4;width:100%;outline:none;">';
+  } else {
+    var optsHtml = q.options.map(function(o, oi) {
+      return '<button class="opt-btn' + (o.disqualify ? ' dq-option' : '') + '"'
+        + ' data-idx="' + oi + '" onclick="pickOpt(' + qi + ',' + oi + ',' + q.multiSelect + ')">'
+        + '<span class="opt-key">' + ALPHA[oi] + '</span><span>' + o.text + '</span></button>';
+    }).join('');
+    bodyHtml = hint + '<div class="opts" id="opts-' + qi + '">' + optsHtml + '</div>';
+  }
   div.innerHTML =
     '<div class="q-title">' + q.title + ' <span class="req">*</span></div>'
-    + hint
-    + '<div class="opts" id="opts-' + qi + '">' + optsHtml + '</div>'
+    + bodyHtml
     + '<div class="btn-row">'
     + '<button class="btn-primary" id="btn-q' + qi + '" onclick="advanceQ(' + qi + ')" disabled>Continuar →</button>'
     + '<button class="btn-back" onclick="' + backFn + '">← Voltar</button>'
@@ -623,10 +623,27 @@ function pickOpt(qi, oi, isMulti) {
     }
   }
 }
+function checkTxt(qi) {
+  var el = document.getElementById('txt-q' + qi);
+  if (!el) return;
+  var val = el.value.trim();
+  document.getElementById('btn-q' + qi).disabled = val.length < 2;
+  STATE.answers['q' + qi] = { text: val, event: '', disqualify: false };
+  var qData = { status: 'parcial' };
+  qData['q' + qi] = val;
+  supaSave(qData);
+}
+
 function advanceQ(qi) {
+  var q = CONFIG.questions[qi];
+  if (q.isText) {
+    var el = document.getElementById('txt-q' + qi);
+    if (!el || el.value.trim().length < 2) return;
+    STATE.answers['q' + qi] = { text: el.value.trim(), event: '', disqualify: false };
+  }
   var ans = STATE.answers['q' + qi];
   if (!ans) return;
-  if (!CONFIG.questions[qi].multiSelect && ans.disqualify) return;
+  if (!q.multiSelect && !q.isText && ans.disqualify) return;
   if (qi + 1 < CONFIG.questions.length) goToQ(qi + 1); else goToCal();
 }
 function goBackDQ() {
@@ -711,8 +728,7 @@ function selTime(t) {
   STATE.selTime = t;
   document.querySelectorAll('.time-btn').forEach(function(b) { b.classList.toggle('sel-time', b.textContent === t); });
   document.getElementById('btn-cal').disabled = false;
-  // LeadAgendado and Schedule fire only on confirmBooking
-  if (window.fbq) { fbq('track', 'Schedule'); }
+  // Schedule and LeadAgendado fire only on confirmBooking — not here
 }
 
 function chgMonth(dir) {
