@@ -815,7 +815,7 @@ function supaSave(data) {
   if (!data.wpp) return;
   // Upsert: POST with on_conflict=wpp merges into existing row
   fetch(
-    CONFIG.supabaseUrl + '/rest/v1/leads?on_conflict=wpp',
+    CONFIG.supabaseUrl + '/rest/v1/leads_lp?on_conflict=wpp',
     {
       method: 'POST',
       headers: {
